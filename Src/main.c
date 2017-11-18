@@ -140,8 +140,8 @@ int main(void)
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */
-	count = __HAL_TIM_GET_COUNTER(&htim5);
-	count = __HAL_TIM_GET_COUNTER(&htim5);
+	count = __HAL_TIM_GET_COUNTER(&htim2);
+	count = __HAL_TIM_GET_COUNTER(&htim2);
 
   }
   /* USER CODE END 3 */
