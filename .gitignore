@@ -51,3 +51,9 @@ Module.symvers
 Mkfile.old
 dkms.conf
 /Debug/
+
+# Tmp files
+*.tmp
+/Release/
+/Release-jpb/
+/Release-ThBOT/

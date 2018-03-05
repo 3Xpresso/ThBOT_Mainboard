@@ -4,7 +4,7 @@
   * @brief   Interrupt Service Routines.
   ******************************************************************************
   *
-  * COPYRIGHT(c) 2017 STMicroelectronics
+  * COPYRIGHT(c) 2018 STMicroelectronics
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -37,7 +37,7 @@
 #include "cmsis_os.h"
 
 /* USER CODE BEGIN 0 */
-
+#include "thb-bsp.h"
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
@@ -70,6 +70,20 @@ void SysTick_Handler(void)
 /******************************************************************************/
 
 /**
+* @brief This function handles DMA1 stream0 global interrupt.
+*/
+void DMA1_Stream0_IRQHandler(void)
+{
+  /* USER CODE BEGIN DMA1_Stream0_IRQn 0 */
+  thb_DMA1_Stream0_IRQHandler();
+  /* USER CODE END DMA1_Stream0_IRQn 0 */
+  
+  /* USER CODE BEGIN DMA1_Stream0_IRQn 1 */
+
+  /* USER CODE END DMA1_Stream0_IRQn 1 */
+}
+
+/**
 * @brief This function handles TIM1 update interrupt and TIM10 global interrupt.
 */
 void TIM1_UP_TIM10_IRQHandler(void)
@@ -81,6 +95,19 @@ void TIM1_UP_TIM10_IRQHandler(void)
   /* USER CODE BEGIN TIM1_UP_TIM10_IRQn 1 */
 
   /* USER CODE END TIM1_UP_TIM10_IRQn 1 */
+}
+
+/**
+* @brief This function handles UART5 global interrupt.
+*/
+void UART5_IRQHandler(void)
+{
+  /* USER CODE BEGIN UART5_IRQn 0 */
+	thb_UART5_IRQHandler();
+  /* USER CODE END UART5_IRQn 0 */
+  /* USER CODE BEGIN UART5_IRQn 1 */
+
+  /* USER CODE END UART5_IRQn 1 */
 }
 
 /* USER CODE BEGIN 1 */

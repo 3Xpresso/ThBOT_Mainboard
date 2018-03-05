@@ -1,8 +1,8 @@
 /**
   ******************************************************************************
-  * File Name          : TIM.h
+  * File Name          : USART.h
   * Description        : This file provides code for the configuration
-  *                      of the TIM instances.
+  *                      of the USART instances.
   ******************************************************************************
   * This notice applies to any and all portions of this file
   * that are not between comment pairs USER CODE BEGIN and
@@ -47,24 +47,20 @@
   ******************************************************************************
   */
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __tim_H
-#define __tim_H
+#ifndef __usart_H
+#define __usart_H
 #ifdef __cplusplus
  extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
-#include "stm32f4xx_hal.h"
+#include "stm32f4xx_ll_usart.h"
+#include "stm32f4xx_ll_rcc.h"
 #include "main.h"
 
 /* USER CODE BEGIN Includes */
 
 /* USER CODE END Includes */
-
-extern TIM_HandleTypeDef htim2;
-extern TIM_HandleTypeDef htim3;
-extern TIM_HandleTypeDef htim4;
-extern TIM_HandleTypeDef htim5;
 
 /* USER CODE BEGIN Private defines */
 
@@ -72,13 +68,7 @@ extern TIM_HandleTypeDef htim5;
 
 extern void _Error_Handler(char *, int);
 
-void MX_TIM2_Init(void);
-void MX_TIM3_Init(void);
-void MX_TIM4_Init(void);
-void MX_TIM5_Init(void);
-                    
-void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
-                                
+void MX_UART5_Init(void);
 
 /* USER CODE BEGIN Prototypes */
 
@@ -87,7 +77,7 @@ void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
 #ifdef __cplusplus
 }
 #endif
-#endif /*__ tim_H */
+#endif /*__ usart_H */
 
 /**
   * @}

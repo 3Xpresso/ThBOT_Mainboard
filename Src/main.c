@@ -9,7 +9,7 @@
   * inserted by the user or by software development tools
   * are owned by their respective copyright owners.
   *
-  * Copyright (c) 2017 STMicroelectronics International N.V. 
+  * Copyright (c) 2018 STMicroelectronics International N.V. 
   * All rights reserved.
   *
   * Redistribution and use in source and binary forms, with or without 
@@ -50,11 +50,17 @@
 #include "main.h"
 #include "stm32f4xx_hal.h"
 #include "cmsis_os.h"
+#include "adc.h"
+#include "dma.h"
 #include "tim.h"
+#include "usart.h"
 #include "gpio.h"
 
 /* USER CODE BEGIN Includes */
-
+/* http://www.openstm32.org/forumthread339 */
+/* #include "cmsis_os.h" */
+#include "thb-tests.h"
+#include "thb-bsp.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -70,18 +76,24 @@ void MX_FREERTOS_Init(void);
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
+extern void initialise_monitor_handles(void);
 
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
-
+// Stub for release version
+__weak void initialise_monitor_handles( void )
+{
+}
 /* USER CODE END 0 */
 
 int main(void)
 {
 
   /* USER CODE BEGIN 1 */
+	initialise_monitor_handles();
 
+	printf("Hello !\n");
   /* USER CODE END 1 */
 
   /* MCU Configuration----------------------------------------------------------*/
@@ -97,20 +109,28 @@ int main(void)
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
-  uint32_t count = 0;
+
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_DMA_Init();
   MX_TIM2_Init();
   MX_TIM3_Init();
   MX_TIM4_Init();
   MX_TIM5_Init();
+  MX_UART5_Init();
+  MX_ADC3_Init();
 
   /* USER CODE BEGIN 2 */
+  thb_UART5_Init();
+
   HAL_GPIO_WritePin(LD1_GPIO_Port, LD1_Pin, GPIO_PIN_SET);
   HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_RESET);
   HAL_GPIO_WritePin(LD3_GPIO_Port, LD3_Pin, GPIO_PIN_SET);
+
+  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_7, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_11, GPIO_PIN_RESET);
 
   // Init and Start Encoders Counters
   __HAL_TIM_SET_COUNTER(&htim2, 2147483647);
@@ -126,10 +146,10 @@ int main(void)
   /* USER CODE END 2 */
 
   /* Call init function for freertos objects (in freertos.c) */
-//  MX_FREERTOS_Init();
+  MX_FREERTOS_Init();
 
   /* Start scheduler */
-//  osKernelStart();
+  osKernelStart();
   
   /* We should never get here as control is now taken by the scheduler */
 
@@ -140,8 +160,7 @@ int main(void)
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */
-	count = __HAL_TIM_GET_COUNTER(&htim2);
-	count = __HAL_TIM_GET_COUNTER(&htim2);
+	  exec_test(0);
 
   }
   /* USER CODE END 3 */

@@ -10,7 +10,7 @@
   * inserted by the user or by software development tools
   * are owned by their respective copyright owners.
   *
-  * Copyright (c) 2017 STMicroelectronics International N.V. 
+  * Copyright (c) 2018 STMicroelectronics International N.V. 
   * All rights reserved.
   *
   * Redistribution and use in source and binary forms, with or without 
@@ -214,19 +214,19 @@ void HAL_TIM_Encoder_MspInit(TIM_HandleTypeDef* tim_encoderHandle)
     PA5     ------> TIM2_CH1
     PB3     ------> TIM2_CH2 
     */
-    GPIO_InitStruct.Pin = ENCA_L_Pin;
+    GPIO_InitStruct.Pin = L_ENC_SIGA_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull = GPIO_PULLUP;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     GPIO_InitStruct.Alternate = GPIO_AF1_TIM2;
-    HAL_GPIO_Init(ENCA_L_GPIO_Port, &GPIO_InitStruct);
+    HAL_GPIO_Init(L_ENC_SIGA_GPIO_Port, &GPIO_InitStruct);
 
-    GPIO_InitStruct.Pin = ENCB_L_Pin;
+    GPIO_InitStruct.Pin = L_ENC_SIGB_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull = GPIO_PULLUP;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     GPIO_InitStruct.Alternate = GPIO_AF1_TIM2;
-    HAL_GPIO_Init(ENCB_L_GPIO_Port, &GPIO_InitStruct);
+    HAL_GPIO_Init(L_ENC_SIGB_GPIO_Port, &GPIO_InitStruct);
 
   /* USER CODE BEGIN TIM2_MspInit 1 */
 
@@ -244,7 +244,7 @@ void HAL_TIM_Encoder_MspInit(TIM_HandleTypeDef* tim_encoderHandle)
     PA0-WKUP     ------> TIM5_CH1
     PA1     ------> TIM5_CH2 
     */
-    GPIO_InitStruct.Pin = ENCA_R_Pin|ENCB_R_Pin;
+    GPIO_InitStruct.Pin = R_ENC_SIGA_Pin|R_ENC_SIGB_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull = GPIO_PULLUP;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -295,12 +295,12 @@ void HAL_TIM_MspPostInit(TIM_HandleTypeDef* timHandle)
     /**TIM3 GPIO Configuration    
     PA6     ------> TIM3_CH1 
     */
-    GPIO_InitStruct.Pin = PWM_L_Pin;
+    GPIO_InitStruct.Pin = L_MOT_PWM_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     GPIO_InitStruct.Alternate = GPIO_AF2_TIM3;
-    HAL_GPIO_Init(PWM_L_GPIO_Port, &GPIO_InitStruct);
+    HAL_GPIO_Init(L_MOT_PWM_GPIO_Port, &GPIO_InitStruct);
 
   /* USER CODE BEGIN TIM3_MspPostInit 1 */
 
@@ -315,12 +315,12 @@ void HAL_TIM_MspPostInit(TIM_HandleTypeDef* timHandle)
     /**TIM4 GPIO Configuration    
     PD12     ------> TIM4_CH1 
     */
-    GPIO_InitStruct.Pin = PWM_R_Pin;
+    GPIO_InitStruct.Pin = R_MOT_PWM_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     GPIO_InitStruct.Alternate = GPIO_AF2_TIM4;
-    HAL_GPIO_Init(PWM_R_GPIO_Port, &GPIO_InitStruct);
+    HAL_GPIO_Init(R_MOT_PWM_GPIO_Port, &GPIO_InitStruct);
 
   /* USER CODE BEGIN TIM4_MspPostInit 1 */
 
@@ -344,9 +344,9 @@ void HAL_TIM_Encoder_MspDeInit(TIM_HandleTypeDef* tim_encoderHandle)
     PA5     ------> TIM2_CH1
     PB3     ------> TIM2_CH2 
     */
-    HAL_GPIO_DeInit(ENCA_L_GPIO_Port, ENCA_L_Pin);
+    HAL_GPIO_DeInit(L_ENC_SIGA_GPIO_Port, L_ENC_SIGA_Pin);
 
-    HAL_GPIO_DeInit(ENCB_L_GPIO_Port, ENCB_L_Pin);
+    HAL_GPIO_DeInit(L_ENC_SIGB_GPIO_Port, L_ENC_SIGB_Pin);
 
   /* USER CODE BEGIN TIM2_MspDeInit 1 */
 
@@ -364,7 +364,7 @@ void HAL_TIM_Encoder_MspDeInit(TIM_HandleTypeDef* tim_encoderHandle)
     PA0-WKUP     ------> TIM5_CH1
     PA1     ------> TIM5_CH2 
     */
-    HAL_GPIO_DeInit(GPIOA, ENCA_R_Pin|ENCB_R_Pin);
+    HAL_GPIO_DeInit(GPIOA, R_ENC_SIGA_Pin|R_ENC_SIGB_Pin);
 
   /* USER CODE BEGIN TIM5_MspDeInit 1 */
 

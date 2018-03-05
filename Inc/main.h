@@ -9,7 +9,7 @@
   * inserted by the user or by software development tools
   * are owned by their respective copyright owners.
   *
-  * Copyright (c) 2017 STMicroelectronics International N.V. 
+  * Copyright (c) 2018 STMicroelectronics International N.V. 
   * All rights reserved.
   *
   * Redistribution and use in source and binary forms, with or without 
@@ -49,6 +49,17 @@
 #ifndef __MAIN_H
 #define __MAIN_H
   /* Includes ------------------------------------------------------------------*/
+#include "stm32f4xx_ll_dma.h"
+#include "stm32f4xx_ll_usart.h"
+#include "stm32f4xx_ll_rcc.h"
+#include "stm32f4xx_ll_bus.h"
+#include "stm32f4xx_ll_cortex.h"
+#include "stm32f4xx_ll_system.h"
+#include "stm32f4xx_ll_utils.h"
+#include "stm32f4xx_ll_pwr.h"
+#include "stm32f4xx_ll_gpio.h"
+
+#include "stm32f4xx_ll_exti.h"
 
 /* Includes ------------------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -59,26 +70,38 @@
 
 #define USER_Btn_Pin GPIO_PIN_13
 #define USER_Btn_GPIO_Port GPIOC
+#define VBATT_Pin GPIO_PIN_6
+#define VBATT_GPIO_Port GPIOF
 #define MCO_Pin GPIO_PIN_0
 #define MCO_GPIO_Port GPIOH
-#define ENCA_R_Pin GPIO_PIN_0
-#define ENCA_R_GPIO_Port GPIOA
-#define ENCB_R_Pin GPIO_PIN_1
-#define ENCB_R_GPIO_Port GPIOA
-#define ENCA_L_Pin GPIO_PIN_5
-#define ENCA_L_GPIO_Port GPIOA
-#define PWM_L_Pin GPIO_PIN_6
-#define PWM_L_GPIO_Port GPIOA
+#define R_ENC_SIGA_Pin GPIO_PIN_0
+#define R_ENC_SIGA_GPIO_Port GPIOA
+#define R_ENC_SIGB_Pin GPIO_PIN_1
+#define R_ENC_SIGB_GPIO_Port GPIOA
+#define L_ENC_SIGA_Pin GPIO_PIN_5
+#define L_ENC_SIGA_GPIO_Port GPIOA
+#define L_MOT_PWM_Pin GPIO_PIN_6
+#define L_MOT_PWM_GPIO_Port GPIOA
+#define L_MOT_DIR_Pin GPIO_PIN_7
+#define L_MOT_DIR_GPIO_Port GPIOA
 #define LD1_Pin GPIO_PIN_0
 #define LD1_GPIO_Port GPIOB
+#define PWR_IN_Pin GPIO_PIN_0
+#define PWR_IN_GPIO_Port GPIOG
+#define UART_LCD_TX_Pin GPIO_PIN_7
+#define UART_LCD_TX_GPIO_Port GPIOE
+#define UART_LCD_RX_Pin GPIO_PIN_8
+#define UART_LCD_RX_GPIO_Port GPIOE
 #define LD3_Pin GPIO_PIN_14
 #define LD3_GPIO_Port GPIOB
 #define STLK_RX_Pin GPIO_PIN_8
 #define STLK_RX_GPIO_Port GPIOD
 #define STLK_TX_Pin GPIO_PIN_9
 #define STLK_TX_GPIO_Port GPIOD
-#define PWM_R_Pin GPIO_PIN_12
-#define PWM_R_GPIO_Port GPIOD
+#define R_MOT_DIR_Pin GPIO_PIN_11
+#define R_MOT_DIR_GPIO_Port GPIOD
+#define R_MOT_PWM_Pin GPIO_PIN_12
+#define R_MOT_PWM_GPIO_Port GPIOD
 #define USB_PowerSwitchOn_Pin GPIO_PIN_6
 #define USB_PowerSwitchOn_GPIO_Port GPIOG
 #define USB_OverCurrent_Pin GPIO_PIN_7
@@ -97,8 +120,8 @@
 #define TMS_GPIO_Port GPIOA
 #define TCK_Pin GPIO_PIN_14
 #define TCK_GPIO_Port GPIOA
-#define ENCB_L_Pin GPIO_PIN_3
-#define ENCB_L_GPIO_Port GPIOB
+#define L_ENC_SIGB_Pin GPIO_PIN_3
+#define L_ENC_SIGB_GPIO_Port GPIOB
 #define LD2_Pin GPIO_PIN_7
 #define LD2_GPIO_Port GPIOB
 

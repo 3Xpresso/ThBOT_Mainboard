@@ -9,7 +9,7 @@
   * inserted by the user or by software development tools
   * are owned by their respective copyright owners.
   *
-  * Copyright (c) 2017 STMicroelectronics International N.V. 
+  * Copyright (c) 2018 STMicroelectronics International N.V. 
   * All rights reserved.
   *
   * Redistribution and use in source and binary forms, with or without 
@@ -52,13 +52,17 @@
 #include "cmsis_os.h"
 
 /* USER CODE BEGIN Includes */     
-
+#include "stm32f4xx_hal.h"
+#include "tim.h"
+#include "thb-fsm.h"
+#include "thb-bsp.h"
 /* USER CODE END Includes */
 
 /* Variables -----------------------------------------------------------------*/
 osThreadId defaultTaskHandle;
 
 /* USER CODE BEGIN Variables */
+osThreadId uart5TaskHandle;
 
 /* USER CODE END Variables */
 
@@ -99,6 +103,8 @@ void MX_FREERTOS_Init(void) {
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
+  osThreadDef(uart5Task, thb_UART5Task, osPriorityHigh, 0, 128);
+  uart5TaskHandle = osThreadCreate(osThread(uart5Task), NULL);
   /* USER CODE END RTOS_THREADS */
 
   /* USER CODE BEGIN RTOS_QUEUES */
@@ -111,11 +117,11 @@ void StartDefaultTask(void const * argument)
 {
 
   /* USER CODE BEGIN StartDefaultTask */
-
+  printf("Start default task...\n");
   /* Infinite loop */
   for(;;)
   {
-    osDelay(10);
+    thb_fsm_loop();
   }
   /* USER CODE END StartDefaultTask */
 }
