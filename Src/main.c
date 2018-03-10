@@ -61,6 +61,9 @@
 /* #include "cmsis_os.h" */
 #include "thb-tests.h"
 #include "thb-bsp.h"
+#include "MotionControl_C.h"
+#include "Odometry_C.h"
+
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -82,9 +85,10 @@ extern void initialise_monitor_handles(void);
 
 /* USER CODE BEGIN 0 */
 // Stub for release version
-__weak void initialise_monitor_handles( void )
+__weak void initialise_monitor_handles(void)
 {
 }
+
 /* USER CODE END 0 */
 
 int main(void)
@@ -147,6 +151,9 @@ int main(void)
 
   /* Call init function for freertos objects (in freertos.c) */
   MX_FREERTOS_Init();
+
+  MotionControl_C_new();
+  Odometry_C_new();
 
   /* Start scheduler */
   osKernelStart();
