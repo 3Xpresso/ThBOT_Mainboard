@@ -4,6 +4,8 @@
 #include "task.h"
 #include "cmsis_os.h"
 
+#include <string.h>
+
 #include "stm32f4xx_hal.h"
 #include "tim.h"
 
