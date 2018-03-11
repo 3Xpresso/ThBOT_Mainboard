@@ -10,8 +10,17 @@
 #include "task.h"
 #include "cmsis_os.h"
 
+#include "DcMotor.h"
+
 #ifndef MOTIONCONTROL_MOTIONCONTROL_H_
 #define MOTIONCONTROL_MOTIONCONTROL_H_
+
+enum
+{
+	MOTION_MOTOR_LEFT = 0,
+	MOTION_MOTOR_RIGHT,
+	MOTION_MOTOR_MAX,
+};
 
 class MotionControl {
 public:
@@ -20,12 +29,11 @@ public:
 
 	void task(void);
 
-	uint32_t   Param1;
-
 protected:
 
 	osThreadId motionTaskHandle;
-	uint32_t   Param2;
+
+	DcMotor motionMotor[MOTION_MOTOR_MAX];
 };
 
 #endif /* MOTIONCONTROL_MOTIONCONTROL_H_ */

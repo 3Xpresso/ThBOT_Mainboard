@@ -26,6 +26,9 @@ Odometry::Odometry() {
 
 	osThreadDef(odomTask, taskWrapper, PRIORITY_ODOMETRY, 0, 128);
 	odomTaskHandle = osThreadCreate(osThread(odomTask), this);
+
+	//odomEncoder[ODOM_ENCODER_LEFT]  ENCODER_1;
+	//odomEncoder[ODOM_ENCODER_RIGHT] ENCODER_2;
 }
 
 Odometry::~Odometry() {

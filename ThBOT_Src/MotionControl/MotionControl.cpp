@@ -27,9 +27,8 @@ MotionControl::MotionControl() {
 	osThreadDef(motionTask, taskWrapper, PRIORITY_MOTIONCTRL, 0, 128);
 	motionTaskHandle = osThreadCreate(osThread(motionTask), this);
 
-	Param1 = 1;
-	Param2 = 2;
-	printf("Motion control task...(%i - %i)\n", Param1, Param2);
+	//motionMotor[MOTION_MOTOR_LEFT] BSP_DCMOTOR_1;
+	//motionMotor[MOTION_MOTOR_RIGHT] BSP_DCMOTOR_2;
 }
 
 MotionControl::~MotionControl() {
@@ -38,7 +37,7 @@ MotionControl::~MotionControl() {
 
 void MotionControl::task(void)
 {
-	printf("Start motion control task...(%i - %i)\n", Param1, Param2);
+	printf("Start motion control task...\n");
 
 	while(1)
 	{
