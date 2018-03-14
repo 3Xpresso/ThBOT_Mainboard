@@ -33,7 +33,8 @@ typedef struct Mode
 	fn_ptr fct[MAX_MODE];
 } t_Mode;
 
-static uint32_t Mode = MODE_IDLE;
+static uint32_t Mode  = MODE_IDLE;
+static uint32_t State = STATE_IDLE;
 static uint32_t CounterLoop = 0;
 
 static void idle_callback(uint32_t Evt);
@@ -88,7 +89,6 @@ void thb_fsm_ChangeModeState(uint32_t Mode, uint32_t State)
 void thb_fsm_loop(void)
 {
 	fn_ptr CallBack = NULL;
-	uint32_t State;
 
 	thb_fsm_ChangeModeState(MODE_IDLE, STATE_IDLE);
 
@@ -103,4 +103,10 @@ void thb_fsm_loop(void)
     	else
     		idle_callback(State);
     }
+}
+
+void thb_fsm_GetModeState(uint32_t *p_Mode, uint32_t *p_State)
+{
+	*p_Mode = Mode;
+	*p_State = State;
 }

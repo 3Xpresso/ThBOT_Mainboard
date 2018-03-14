@@ -1,4 +1,10 @@
 
+#ifndef THB_FSM_H
+#define THB_FSM_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 enum {
   STATE_IDLE,
@@ -8,6 +14,7 @@ enum {
   STATE_MOVE_BACKWARD,
   STATE_TURN_RIGTH,
   STATE_TURN_LEFT,
+  STATE_ODOM_PARAMS,
 };
 
 enum {
@@ -22,3 +29,10 @@ enum {
 extern void thb_fsm_ChangeModeState(uint32_t Mode, uint32_t State);
 extern void thb_fsm_loop(void);
 extern void thb_fsm_StoreCmd(uint32_t Mode, uint32_t State);
+extern void thb_fsm_GetModeState(uint32_t *Mode, uint32_t *State);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* THB_FSM_H */

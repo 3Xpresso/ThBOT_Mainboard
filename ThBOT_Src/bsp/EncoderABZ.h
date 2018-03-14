@@ -11,8 +11,15 @@ enum
 
 class EncoderABZ {
 public:
-	EncoderABZ();
+	EncoderABZ(uint32_t id);
 	virtual ~EncoderABZ();
+
+	int32_t GetDeltaStep();
+
+protected:
+	uint32_t id;
+
+	int32_t GetAbsoluteStep();
 };
 
 #endif /* BSP_ENCODERABZ_H_ */

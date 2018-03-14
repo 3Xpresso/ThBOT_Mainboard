@@ -33,7 +33,8 @@ protected:
 
 	osThreadId odomTaskHandle;
 
-	EncoderABZ odomEncoder[ODOM_ENCODER_MAX];
+	EncoderABZ * odomEncoderLeft;
+	EncoderABZ * odomEncoderRight;
 };
 
 #endif /* ODOMETRY_ODOMETRY_H_ */
