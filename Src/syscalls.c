@@ -121,7 +121,7 @@ caddr_t _sbrk(int incr)
 	}*/
 	if(heap_end + incr > mem_end)
 	{
-		write(1, "Heap out of memory\n", 25);
+		write(1, "Heap out of memory\n", 19);
 		abort();
 		errno = ENOMEM;
 		return (caddr_t) -1;
