@@ -61,6 +61,7 @@ void exec_test(uint32_t State)
 	uint32_t count_2 = 0;
 	char dir_1 = '\0';
 	char dir_2 = '\0';
+	uint32_t PercentPower = thb_param_GetPercentPower();
 
 	switch (State)
 	{
@@ -122,34 +123,34 @@ void exec_test(uint32_t State)
 	    case STATE_MOVE_FORWARD :
 	    {
 	    	printf("JPB3 : test marche avant \n");
-	    	thb_SetPwmRight(5000);
+	    	thb_SetPwmRight(PercentPower);
 	    	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_7, GPIO_PIN_RESET);
-	    	thb_SetPwmLeft(5000);
+	    	thb_SetPwmLeft(PercentPower);
 	    	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_11, GPIO_PIN_SET);
 
 	    }break;
 	    case STATE_MOVE_BACKWARD :
 	    {
 	    	printf("JPB3 : test marche arriere \n");
-	    	thb_SetPwmRight(5000);
+	    	thb_SetPwmRight(PercentPower);
 	    	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_7, GPIO_PIN_SET);
-	    	thb_SetPwmLeft(5000);
+	    	thb_SetPwmLeft(PercentPower);
 	    	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_11, GPIO_PIN_RESET);
 	    }break;
 	    case STATE_TURN_RIGTH :
 	    {
 	    	printf("JPB3 : test rotation a droite \n");
-	    	thb_SetPwmRight(5000);
+	    	thb_SetPwmRight(PercentPower);
 	    	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_7, GPIO_PIN_SET);
-	    	thb_SetPwmLeft(5000);
+	    	thb_SetPwmLeft(PercentPower);
 	    	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_11, GPIO_PIN_SET);
 	    }break;
 	    case STATE_TURN_LEFT :
 	    {
 	    	printf("JPB3 : test rotation a gauche \n");
-	    	thb_SetPwmRight(5000);
+	    	thb_SetPwmRight(PercentPower);
 	    	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_7, GPIO_PIN_RESET);
-	    	thb_SetPwmLeft(5000);
+	    	thb_SetPwmLeft(PercentPower);
 	    	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_11, GPIO_PIN_RESET);
 	    }break;
 	}

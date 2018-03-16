@@ -15,6 +15,7 @@
 
 #include "thb-uart-dma.h"
 #include "thb-fsm.h"
+#include "thb-param.h"
 
 #define LONG_TIME 0xffff
 
@@ -36,6 +37,8 @@ void thb_UART5Task(void const *argument){
     printf("Start UART5 task...\n");
     uint32_t uint32_ModeId;
     uint32_t uint32_StateId;
+    uint32_t uint32_ParamId;
+    uint32_t uint32_ParamLen;
 
     for(;;){
         if( xSemaphoreTake( xSemCmdReady, portMAX_DELAY ) == pdTRUE )
@@ -51,6 +54,17 @@ void thb_UART5Task(void const *argument){
         			uint32_StateId  = (UART_Buffer[u32_ReadIndex][7] -48) * 10 + (UART_Buffer[u32_ReadIndex][8] - 48);
 
         			thb_fsm_ChangeModeState(uint32_ModeId, uint32_StateId);
+        		}
+        		else if (   (UART_Buffer[u32_ReadIndex][0] == 'P')
+        				 && (UART_Buffer[u32_ReadIndex][1] == 'A')
+						 && (UART_Buffer[u32_ReadIndex][2] == 'R')
+				   )
+        		{
+        			uint32_ParamLen = (UART_Buffer[u32_ReadIndex][4] -48) * 10 + (UART_Buffer[u32_ReadIndex][5] - 48);
+        			uint32_ParamId  = (UART_Buffer[u32_ReadIndex][7] -48) * 10 + (UART_Buffer[u32_ReadIndex][8] - 48);
+        			UART_Buffer[u32_ReadIndex][10+(uint32_ParamLen-1)] = '\0';
+
+        			thb_param_SetParameter(uint32_ParamId, uint32_ParamLen, UART_Buffer[u32_ReadIndex][10]);
         		}
         		else
         		{

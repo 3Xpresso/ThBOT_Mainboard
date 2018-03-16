@@ -7,6 +7,7 @@ extern "C" {
 
 #include "thb-uart-dma.h"
 #include "thb-pwm.h"
+#include "thb-param.h"
 
 #ifdef __cplusplus
 }
