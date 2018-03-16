@@ -156,3 +156,26 @@ void exec_test(uint32_t State)
 	osDelay(2000);
 	thb_fsm_ChangeModeState(MODE_TESTS, STATE_IDLE);
 }
+
+
+void thb_test_PrintOdometry(char * pu8_Buff)
+{
+	uint32_t Mode;
+	uint32_t State;
+
+	thb_fsm_GetModeState(&Mode, &State);
+
+	if ((Mode == MODE_TESTS) && (State == STATE_ODOM_PARAMS))
+	//if ((Mode == MODE_IDLE) && (State == STATE_IDLE))
+	{
+		//printf("PosX=%10.5f PosY=%10.5f Teta=%10.5f Speed=%10.5f\n",
+		//						PosX, PosY,
+		//						Teta, Speed);
+
+		//sprintf(TestResponse, "%10.5f:%10.5f:%10.5f:%10.5f:",
+		//		PosX, PosY,
+		//		Teta, Speed);
+		//test_send_reponse(STATE_ODOM_PARAMS, TestResponse);
+		printf("%s\n", "Problem printing float!!!");
+	}
+}
