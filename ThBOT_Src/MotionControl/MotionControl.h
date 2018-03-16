@@ -33,7 +33,8 @@ protected:
 
 	osThreadId motionTaskHandle;
 
-	DcMotor motionMotor[MOTION_MOTOR_MAX];
+	DcMotor * motionMotorLeft;
+	DcMotor * motionMotorRight;
 };
 
 #endif /* MOTIONCONTROL_MOTIONCONTROL_H_ */

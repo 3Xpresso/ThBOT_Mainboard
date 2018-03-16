@@ -15,10 +15,22 @@ enum
 	BSP_DCMOTOR_MAX,
 };
 
+enum
+{
+	BACKWARD,
+	FORWARD,
+};
+
 class DcMotor {
 public:
-	DcMotor();
+	DcMotor(uint32_t id);
 	virtual ~DcMotor();
+
+	void SetPercentPower(uint32_t Percentage);
+	void SetDirection(uint32_t Direction);
+
+protected:
+	uint32_t id;
 };
 
 #endif /* BSP_DCMOTOR_H_ */

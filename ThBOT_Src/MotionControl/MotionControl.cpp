@@ -27,8 +27,8 @@ MotionControl::MotionControl() {
 	osThreadDef(motionTask, taskWrapper, PRIORITY_MOTIONCTRL, 0, 128);
 	motionTaskHandle = osThreadCreate(osThread(motionTask), this);
 
-	//motionMotor[MOTION_MOTOR_LEFT] BSP_DCMOTOR_1;
-	//motionMotor[MOTION_MOTOR_RIGHT] BSP_DCMOTOR_2;
+	motionMotorLeft  = new DcMotor(BSP_DCMOTOR_1);
+	motionMotorRight = new DcMotor(BSP_DCMOTOR_2);
 }
 
 MotionControl::~MotionControl() {
@@ -42,5 +42,13 @@ void MotionControl::task(void)
 	while(1)
 	{
 		osDelay(10);
+
+		/*
+		motionMotorLeft->SetDirection(FORWARD);
+		motionMotorLeft->SetPercentPower(10);
+		motionMotorRight->SetDirection(BACKWARD);
+		motionMotorRight->SetPercentPower(10);
+		*/
+
 	}
 }

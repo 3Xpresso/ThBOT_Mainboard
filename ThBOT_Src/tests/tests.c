@@ -123,34 +123,34 @@ void exec_test(uint32_t State)
 	    {
 	    	printf("JPB3 : test marche avant \n");
 	    	thb_SetPwmRight(5000);
-	    	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_7, 0);
+	    	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_7, GPIO_PIN_RESET);
 	    	thb_SetPwmLeft(5000);
-	    	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_11, 1);
+	    	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_11, GPIO_PIN_SET);
 
 	    }break;
 	    case STATE_MOVE_BACKWARD :
 	    {
 	    	printf("JPB3 : test marche arriere \n");
 	    	thb_SetPwmRight(5000);
-	    	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_7, 1);
+	    	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_7, GPIO_PIN_SET);
 	    	thb_SetPwmLeft(5000);
-	    	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_11, 0);
+	    	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_11, GPIO_PIN_RESET);
 	    }break;
 	    case STATE_TURN_RIGTH :
 	    {
 	    	printf("JPB3 : test rotation a droite \n");
 	    	thb_SetPwmRight(5000);
-	    	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_7, 1);
+	    	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_7, GPIO_PIN_SET);
 	    	thb_SetPwmLeft(5000);
-	    	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_11, 1);
+	    	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_11, GPIO_PIN_SET);
 	    }break;
 	    case STATE_TURN_LEFT :
 	    {
 	    	printf("JPB3 : test rotation a gauche \n");
 	    	thb_SetPwmRight(5000);
-	    	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_7, 0);
+	    	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_7, GPIO_PIN_RESET);
 	    	thb_SetPwmLeft(5000);
-	    	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_11, 0);
+	    	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_11, GPIO_PIN_RESET);
 	    }break;
 	}
 	osDelay(2000);
@@ -168,14 +168,6 @@ void thb_test_PrintOdometry(char * pu8_Buff)
 	if ((Mode == MODE_TESTS) && (State == STATE_ODOM_PARAMS))
 	//if ((Mode == MODE_IDLE) && (State == STATE_IDLE))
 	{
-		//printf("PosX=%10.5f PosY=%10.5f Teta=%10.5f Speed=%10.5f\n",
-		//						PosX, PosY,
-		//						Teta, Speed);
-
-		//sprintf(TestResponse, "%10.5f:%10.5f:%10.5f:%10.5f:",
-		//		PosX, PosY,
-		//		Teta, Speed);
-		//test_send_reponse(STATE_ODOM_PARAMS, TestResponse);
-		printf("%s\n", "Problem printing float!!!");
+		test_send_reponse(STATE_ODOM_PARAMS, TestResponse);
 	}
 }
