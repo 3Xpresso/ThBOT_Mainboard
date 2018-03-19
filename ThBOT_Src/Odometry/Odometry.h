@@ -15,21 +15,46 @@
 #ifndef ODOMETRY_ODOMETRY_H_
 #define ODOMETRY_ODOMETRY_H_
 
-enum
-{
-	ODOM_ENCODER_LEFT = 0,
-	ODOM_ENCODER_RIGHT,
-	ODOM_ENCODER_MAX,
-};
+typedef struct {
+  int32_t pos_x;
+  int32_t pos_y;
+  double angle;
+  double speed; // mm/ms
+  double accel; // Speed/ms
+} Odom_t;
 
 class Odometry {
 public:
 	Odometry();
 	virtual ~Odometry();
 
+	void Init(int32_t pos_x, int32_t pos_y, double angle);
+
 	void task();
 
+	Odom_t GetOdomValue()
+	{
+	  Odom_t res = {
+	      this->Pos_x,
+	      this->Pos_y,
+	      this->Angle,
+	      this->Speed,
+	      this->Accel
+	  };
+	  return res;
+	}
+
 protected:
+
+	void Update_value(double delta_left_mm, double delta_right_mm);
+
+	int32_t Pos_x;
+	int32_t Pos_y;
+	double Angle;
+	double Speed; // mm/ms
+	double Accel; // Speed/ms
+
+	TickType_t previous_tick_count;
 
 	osThreadId odomTaskHandle;
 

@@ -5,17 +5,17 @@
 
 #include "stm32f4xx_hal.h"
 #include "tim.h"
+#include "math.h"
 
+#include "ThBot_platform.h"
 #include "EncoderABZ.h"
 
 #define TIMER_INIT_VALUE     2147483647
 
-static int32_t absoluteCountLeft = 0;
-static int32_t absoluteCountRight = 0;
-
-
-EncoderABZ::EncoderABZ(uint32_t id) {
+EncoderABZ::EncoderABZ(Encodeur_t id) {
 	this->id = id;
+	this->Absolute_value = 0;
+	this->MM_per_step = (M_PI * ENCODER_WHEEL_SIZE / ENCODER_NB_STEP);
 }
 
 EncoderABZ::~EncoderABZ() {
@@ -24,25 +24,26 @@ EncoderABZ::~EncoderABZ() {
 
 int32_t EncoderABZ::GetDeltaStep()
 {
-	int32_t absoluteCount = 0;
-	int32_t deltaCount = 0;
+	int32_t new_absolute = 0;
+	int32_t delta = 0;
 
-	absoluteCount = GetAbsoluteStep();
+	new_absolute = GetAbsoluteStep();
 
-	switch (this->id)
-	{
-		case ENCODER_1:
-		{
-			deltaCount = absoluteCountLeft - absoluteCount;
-			absoluteCountLeft = absoluteCount;
-		}break;
-		case ENCODER_2:
-		{
-			deltaCount = absoluteCountRight - absoluteCount;
-			absoluteCountRight = absoluteCount;
-		}break;
-	}
-	return deltaCount;
+	// calculate delta (new - old)
+	delta = new_absolute - this->Absolute_value;
+
+	//update reference = new
+	this->Absolute_value = new_absolute;
+
+	return delta;
+}
+
+double EncoderABZ::GetDeltaMM()
+{
+	int32_t delta_step = GetDeltaStep();
+	double delta_mm = delta_step * MM_per_step;
+
+	return delta_mm;
 }
 
 int32_t EncoderABZ::GetAbsoluteStep()
@@ -51,12 +52,12 @@ int32_t EncoderABZ::GetAbsoluteStep()
 
 	switch (this->id)
 	{
-		case ENCODER_1:
+		case ENCODER_LEFT:
 		{
 			const uint32_t count_1 = __HAL_TIM_GET_COUNTER(&htim5);
 			absoluteCount = TIMER_INIT_VALUE - count_1;
 		}break;
-		case ENCODER_2:
+		case ENCODER_RIGHT:
 		{
 			const uint32_t count_1 = __HAL_TIM_GET_COUNTER(&htim2);
 			absoluteCount = TIMER_INIT_VALUE - count_1;
