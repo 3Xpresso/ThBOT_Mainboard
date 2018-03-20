@@ -10,10 +10,10 @@
 #include "task.h"
 #include "cmsis_os.h"
 
-#include "DcMotor.h"
+#include "bsp/DcMotor.h"
 
-#ifndef MOTIONCONTROL_MOTIONCONTROL_H_
-#define MOTIONCONTROL_MOTIONCONTROL_H_
+#ifndef MOTIONCONTROL_H_
+#define MOTIONCONTROL_H_
 
 enum
 {
@@ -37,4 +37,4 @@ protected:
 	DcMotor * motionMotorRight;
 };
 
-#endif /* MOTIONCONTROL_MOTIONCONTROL_H_ */
+#endif /* MOTIONCONTROL_H_ */

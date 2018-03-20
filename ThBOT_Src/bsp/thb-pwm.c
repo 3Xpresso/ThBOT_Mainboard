@@ -9,7 +9,7 @@ extern TIM_HandleTypeDef htim4;
 
 void thb_SetPwmRight(uint32_t Val)
 {
-	uint32_t PwmValue = Val * 5/6;
+	uint32_t PwmValue = Val * 60;
     /* Set the Capture Compare Register value */
     //TIM3->CCR1  = Val;  // PWM_CH1
     //TIM3->CCR2  = Val;  // PWM_CH2
@@ -23,7 +23,7 @@ void thb_SetPwmRight(uint32_t Val)
 
 void thb_SetPwmLeft(uint32_t Val)
 {
-	uint32_t PwmValue = Val * 5/6;
+	uint32_t PwmValue = Val * 60;
     //TIM4->CCR1  = Val;  // PWM_CH1
 	//TIM4->CCR2  = Val;  // PWM_CH2
     // __HAL_TIM_SET_AUTORELOAD

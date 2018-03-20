@@ -61,8 +61,8 @@
 /* #include "cmsis_os.h" */
 #include "thb-tests.h"
 #include "thb-bsp.h"
-#include "MotionControl_C.h"
-#include "Odometry_C.h"
+
+#include "RobotCore_C.h"
 
 /* USER CODE END Includes */
 
@@ -146,14 +146,12 @@ int main(void)
   HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
   HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_1);
 
+  RobotCore_C_new();
 
   /* USER CODE END 2 */
 
   /* Call init function for freertos objects (in freertos.c) */
   MX_FREERTOS_Init();
-
-  MotionControl_C_new();
-  Odometry_C_new();
 
   /* Start scheduler */
   osKernelStart();

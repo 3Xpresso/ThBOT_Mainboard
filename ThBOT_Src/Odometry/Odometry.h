@@ -10,7 +10,7 @@
 #include "task.h"
 #include "cmsis_os.h"
 
-#include "EncoderABZ.h"
+#include "bsp/EncoderABZ.h"
 
 #ifndef ODOMETRY_ODOMETRY_H_
 #define ODOMETRY_ODOMETRY_H_

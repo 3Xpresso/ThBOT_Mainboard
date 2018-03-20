@@ -29,11 +29,11 @@ void DcMotor::SetPercentPower(uint32_t Percentage)
 	{
 	case BSP_DCMOTOR_1 :
 	{
-		thb_SetPwmLeft(5000);
+		thb_SetPwmLeft(10);
 	}break;
 	case BSP_DCMOTOR_2 :
 	{
-		thb_SetPwmRight(5000);
+		thb_SetPwmRight(10);
 	}break;
 	}
 }
