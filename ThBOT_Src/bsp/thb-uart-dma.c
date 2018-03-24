@@ -62,9 +62,10 @@ void thb_UART5Task(void const *argument){
         		{
         			uint32_ParamLen = (UART_Buffer[u32_ReadIndex][4] -48) * 10 + (UART_Buffer[u32_ReadIndex][5] - 48);
         			uint32_ParamId  = (UART_Buffer[u32_ReadIndex][7] -48) * 10 + (UART_Buffer[u32_ReadIndex][8] - 48);
-        			UART_Buffer[u32_ReadIndex][10+(uint32_ParamLen-1)] = '\0';
 
-        			thb_param_SetParameter(uint32_ParamId, uint32_ParamLen, UART_Buffer[u32_ReadIndex][10]);
+        			UART_Buffer[u32_ReadIndex][10+(uint32_ParamLen)] = '\0';
+
+        			thb_param_SetParameter(uint32_ParamId, &UART_Buffer[u32_ReadIndex][10], uint32_ParamLen);
         		}
         		else
         		{
