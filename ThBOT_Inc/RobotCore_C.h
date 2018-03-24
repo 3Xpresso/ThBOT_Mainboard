@@ -7,8 +7,12 @@
     extern "C" {
 #endif
 
-extern void *RobotCore_C_new(void);
-extern void RobotCore_C_init(void *robocore);
+typedef struct RobotCore RobotCore;
+
+extern RobotCore *RobotCore_C_new(void);
+extern void RobotCore_C_init(RobotCore *robocore);
+
+extern void RobotCore_C_task(RobotCore *robocore);
 
 #ifdef __cplusplus
 }

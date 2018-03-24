@@ -54,7 +54,6 @@
 /* USER CODE BEGIN Includes */     
 #include "stm32f4xx_hal.h"
 #include "tim.h"
-#include "thb-fsm.h"
 #include "thb-bsp.h"
 #include "thb-task.h"
 /* USER CODE END Includes */
@@ -122,7 +121,7 @@ void StartDefaultTask(void const * argument)
   /* Infinite loop */
   for(;;)
   {
-    thb_fsm_loop();
+	MainLoop();
   }
   /* USER CODE END StartDefaultTask */
 }

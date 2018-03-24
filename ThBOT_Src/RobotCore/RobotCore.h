@@ -16,6 +16,9 @@ public:
 	RobotCore();
 	virtual ~RobotCore();
 
+	void Init(void);
+	void Task(void);
+
 protected:
 	Odometry * odom;
 	MotionControl * motionCtrl;

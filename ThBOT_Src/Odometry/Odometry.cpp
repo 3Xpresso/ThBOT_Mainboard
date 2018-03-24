@@ -59,6 +59,7 @@ void Odometry::task(void)
 	float PosY = 1040.01;
 	float Teta = 137.24;
 	float Speed = 0.78345;
+	char buffer[24];
 
 	printf("Start odometry task...\n");
 
