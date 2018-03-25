@@ -17,7 +17,6 @@
 #include <math.h>
 
 #include "thb-task.h"
-#include "thb-tests.h"
 
 #include "Odometry.h"
 #include "ThBot_platform.h"
@@ -54,12 +53,6 @@ Odometry::~Odometry() {
 void Odometry::task(void)
 {
 	TickType_t xLastWakeTime;
-	uint32_t LoopCounter = 0;
-	float PosX = 0.01;
-	float PosY = 1040.01;
-	float Teta = 137.24;
-	float Speed = 0.78345;
-	char buffer[24];
 
 	printf("Start odometry task...\n");
 
@@ -74,20 +67,6 @@ void Odometry::task(void)
 		odomEncoderLeft->GetDeltaStep();
 		odomEncoderRight->GetDeltaStep();
 
-		// Print each 2s
-		if (((LoopCounter /200) != 0) && ((LoopCounter%200) == 0))
-		{
-			//printf("PosX=%10.5f PosY=%10.5f Teta=%10.5f Speed=%10.5f\n",
-			//						PosX, PosY,
-			//						Teta, Speed);
-
-			//sprintf(TestResponse, "%10.5f:%10.5f:%10.5f:%10.5f:",
-			//		PosX, PosY,
-			//		Teta, Speed);
-			//sprintf(TestResponse, "Problem printing float!!!");
-			//thb_test_PrintOdometry(TestResponse);
-		}
-		LoopCounter++;
 
 		vTaskDelayUntil( &xLastWakeTime, pdMS_TO_TICKS( 10 ));
 	}

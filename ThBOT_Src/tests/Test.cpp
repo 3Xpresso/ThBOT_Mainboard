@@ -1,15 +1,18 @@
-
-/* Includes ------------------------------------------------------------------*/
-#include "FreeRTOS.h"
-#include "task.h"
-#include "cmsis_os.h"
+/*
+ * Test.cpp
+ *
+ *  Created on: 25 mars 2018
+ *      Author: jpb
+ */
 
 #include <string.h>
+
+#include <RobotCore/RobotCore.h>
+#include <tests/Test.h>
 
 #include "stm32f4xx_hal.h"
 #include "tim.h"
 
-#include "thb-tests.h"
 #include "thb-fsm.h"
 #include "thb-bsp.h"
 
@@ -27,41 +30,22 @@ static void test_send_reponse(uint32_t State, char * pu8_Buff)
 	thb_UART5_SendData(SendResponse, strlen(SendResponse));
 }
 
-void test_1(uint32_t Evt)
-{
-  uint32_t count_1 = 0;
-  uint32_t count_2 = 0;
-  GPIO_PinState DirLeft = GPIO_PIN_SET;
-  GPIO_PinState DirRigh = GPIO_PIN_SET;
-  GPIO_PinState PwrIn;
+Test::Test(RobotCore * Rob) {
+	Robocore = Rob;
 
-	count_1 = __HAL_TIM_GET_COUNTER(&htim2);
-	if (((count_1 /10000) != 0) && ((count_1%10000) == 0))
-	{
-		DirLeft ^= 1;
-		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_7, DirLeft);
-		printf("JPB1 : %i - %i \n", (unsigned int)count_1, (unsigned int)count_2);
-	}
-
-	count_2 = __HAL_TIM_GET_COUNTER(&htim5);
-	if (((count_2 /10000) != 0) && ((count_2%10000) == 0))
-	{
-		DirRigh ^= 1;
-		HAL_GPIO_WritePin(GPIOD, GPIO_PIN_11, DirRigh);
-		printf("JPB2 : %i - %i \n", (unsigned int)count_1, (unsigned int)count_2);
-		PwrIn = HAL_GPIO_ReadPin(GPIOG, GPIO_PIN_0);
-		printf("JPB3 : %d \n", PwrIn);
-	}
 }
 
-void exec_test(uint32_t State)
+Test::~Test() {
+}
+
+int Test::Run(uint32_t State)
 {
 	GPIO_PinState PwrIn;
 	uint32_t count_1 = 0;
 	uint32_t count_2 = 0;
 	char dir_1 = '\0';
 	char dir_2 = '\0';
-	uint32_t PercentPower = thb_param_GetPercentPower();
+	uint32_t PercentPower = Robocore->GetPercentPower();
 
 	switch (State)
 	{
@@ -69,7 +53,7 @@ void exec_test(uint32_t State)
     	{
     		thb_SetPwmRight(0);
     		thb_SetPwmLeft(0);
-    	    return;
+    	    return 0;
     	}break;
 	    case STATE_GET_PWR_STATE :
 	    {
@@ -153,22 +137,14 @@ void exec_test(uint32_t State)
 	    	thb_SetPwmLeft(PercentPower);
 	    	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_11, GPIO_PIN_RESET);
 	    }break;
+	    case STATE_ODOM_PARAMS :
+	    {
+	    	sprintf(TestResponse, "%s",
+	    			"0000000.01:0001040.01:0000137.24:0000.78345");
+	    	test_send_reponse(State, TestResponse);
+	    }break;
 	}
 	osDelay(2000);
 	thb_fsm_ChangeModeState(MODE_TESTS, STATE_IDLE);
-}
-
-
-void thb_test_PrintOdometry(char * pu8_Buff)
-{
-	uint32_t Mode;
-	uint32_t State;
-
-	thb_fsm_GetModeState(&Mode, &State);
-
-	if ((Mode == MODE_TESTS) && (State == STATE_ODOM_PARAMS))
-	//if ((Mode == MODE_IDLE) && (State == STATE_IDLE))
-	{
-		test_send_reponse(STATE_ODOM_PARAMS, TestResponse);
-	}
+	return 0;
 }

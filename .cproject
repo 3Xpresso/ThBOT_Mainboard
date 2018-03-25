@@ -249,7 +249,7 @@
 	<storageModule moduleId="refreshScope" versionNumber="2">
 		<configuration configurationName="Release-ThBOT"/>
 		<configuration configurationName="Debug">
-			<resource resourceType="PROJECT" workspacePath="ThBOT_Mainboard"/>
+			<resource resourceType="PROJECT" workspacePath="/ThBOT_Mainboard"/>
 		</configuration>
 		<configuration configurationName="Release"/>
 	</storageModule>

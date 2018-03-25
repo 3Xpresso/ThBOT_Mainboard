@@ -59,7 +59,6 @@
 /* USER CODE BEGIN Includes */
 /* http://www.openstm32.org/forumthread339 */
 /* #include "cmsis_os.h" */
-#include "thb-tests.h"
 #include "thb-bsp.h"
 
 #include "RobotCore_C.h"
@@ -227,7 +226,6 @@ int main(void)
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */
-	  exec_test(0);
 
   }
   /* USER CODE END 3 */

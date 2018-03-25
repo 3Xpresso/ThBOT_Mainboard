@@ -15,7 +15,6 @@
 #include <math.h>
 
 #include "thb-task.h"
-#include "thb-tests.h"
 
 //#include "Odometry.h"
 #include "ThBot_platform.h"
@@ -24,7 +23,6 @@
 
 /***************************************************************/
 #include "thb-fsm.h"
-#include "thb-tests.h"
 
 typedef struct Cmd
 {
@@ -48,28 +46,12 @@ static t_CmdRec st_CmdRec = {
 	},
 };
 
-typedef void (*fn_ptr) (uint32_t Evt);
-
-typedef struct Mode
-{
-	fn_ptr fct[MAX_MODE];
-} t_Mode;
-
 static uint32_t Mode  = MODE_IDLE;
 static uint32_t State = STATE_IDLE;
 static uint32_t CounterLoop = 0;
 
 static void idle_callback(uint32_t Evt);
 
-const t_Mode st_ModeCallBack = {
-	.fct = {
-		idle_callback,
-		NULL,
-		NULL,
-		NULL,
-		exec_test,
-	},
-};
 
 static void idle_callback(uint32_t Evt)
 {
@@ -114,6 +96,7 @@ RobotCore::RobotCore() {
 
 	odom       = new Odometry();
 	motionCtrl = new MotionControl();
+	test       = new Test(this);
 }
 
 RobotCore::~RobotCore() {
@@ -127,8 +110,6 @@ void RobotCore::Init(void)
 
 void RobotCore::Task(void)
 {
-	fn_ptr CallBack = NULL;
-
 	thb_fsm_ChangeModeState(MODE_IDLE, STATE_IDLE);
 
     for(;;)
@@ -136,10 +117,29 @@ void RobotCore::Task(void)
     	osDelay(10);
 
     	State = get_state();
-    	CallBack = st_ModeCallBack.fct[Mode];
-    	if (CallBack != NULL)
-    		CallBack(State);
-    	else
-    		idle_callback(State);
+
+    	switch (Mode)
+    	{
+    		case MODE_IDLE :
+    		{
+    			idle_callback(State);
+    		}break;
+    		case MODE_COMPET :
+    		{
+
+    		}break;
+    		case MODE_QUALIF :
+    		{
+
+    		}break;
+    		case MODE_CALIBR :
+    		{
+
+    		}break;
+    		case MODE_TESTS :
+    		{
+    			test->Run(State);
+    		}break;
+    	}
     }
 }

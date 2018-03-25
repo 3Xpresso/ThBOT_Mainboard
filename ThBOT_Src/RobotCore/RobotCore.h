@@ -10,6 +10,9 @@
 
 #include "Odometry/Odometry.h"
 #include "MotionControl/MotionControl.h"
+#include "tests/Test.h"
+
+#include "thb-bsp.h"
 
 class RobotCore {
 public:
@@ -19,9 +22,14 @@ public:
 	void Init(void);
 	void Task(void);
 
+	uint32_t GetPercentPower(){
+		return thb_param_GetPercentPower();
+	}
+
 protected:
-	Odometry * odom;
+	Odometry *      odom;
 	MotionControl * motionCtrl;
+	Test *          test;
 };
 
 
