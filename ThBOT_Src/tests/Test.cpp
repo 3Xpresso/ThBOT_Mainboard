@@ -6,6 +6,7 @@
  */
 
 #include <string.h>
+#include <math.h>
 
 #include <RobotCore/RobotCore.h>
 #include <tests/Test.h>
@@ -16,12 +17,128 @@
 #include "thb-fsm.h"
 #include "thb-bsp.h"
 
-static char SendResponse[64];
-static char TestResponse[48];
+static char SendResponse[80];
+static char TestResponse[64];
 
-#define TIMER_INIT_VALUE     2147483647
-static uint32_t count_left = 0;
-static uint32_t count_right = 0;
+static char Int1[12];
+static char Int2[12];
+static char Float1[12];
+static char Float2[12];
+static char Float3[12];
+static char Float4[12];
+
+static int32_t count_left = 0;
+static int32_t count_right = 0;
+
+static void test_printInt(int i, char * Res)
+{
+	char tmpSign[2];
+	if (i < 0 )
+		tmpSign[0] = '-';
+	else
+		tmpSign[0] = ' ';
+	tmpSign[1] = '\0';
+
+	int tmpVal = (i < 0) ? -i : i;
+
+	sprintf (Res, "%s%10.10i", tmpSign, tmpVal);
+}
+
+static void test_printFloat(float f, char * Res, int pres)
+{
+	//https://stackoverflow.com/questions/905928/using-floats-with-sprintf-in-embedded-c
+	//float adc_read = 678.0123;
+
+	char tmpSign[2];// = (f < 0) ? "-" : " ";
+	if (f < 0 )
+		tmpSign[0] = '-';
+	else
+		tmpSign[0] = ' ';
+	tmpSign[1] = '\0';
+
+	float tmpVal = (f < 0) ? -f : f;
+
+	int tmpInt1 = tmpVal;                  // Get the integer (678).
+	float tmpFrac = tmpVal - tmpInt1;      // Get fraction (0.0123).
+	for(int Pwr=0; Pwr < pres; Pwr++)
+		tmpFrac *= 10;
+
+	int tmpInt2 = trunc(tmpFrac);  // Turn into integer (123).
+
+	// Print as parts, note that you need 0-padding for fractional bit.
+	switch (pres)
+	{
+	case 1:
+	{
+		sprintf (Res, "%s%8.8d.%01d", tmpSign, tmpInt1, tmpInt2);
+	}break;
+	case 2:
+	{
+		sprintf (Res, "%s%7.7d.%02d", tmpSign, tmpInt1, tmpInt2);
+	}break;
+	case 3:
+	{
+		sprintf (Res, "%s%6.6d.%03d", tmpSign, tmpInt1, tmpInt2);
+	}break;
+	case 4:
+	{
+		sprintf (Res, "%s%5.5d.%04d", tmpSign, tmpInt1, tmpInt2);
+	}break;
+	case 5:
+	{
+		sprintf (Res, "%s%4.4d.%05d", tmpSign, tmpInt1, tmpInt2);
+	}break;
+
+	}
+}
+
+static void test_printDouble(double d, char * Res, int pres)
+{
+	//https://stackoverflow.com/questions/905928/using-floats-with-sprintf-in-embedded-c
+	//float adc_read = 678.0123;
+
+	char tmpSign[2];// = (f < 0) ? "-" : " ";
+	if (d < 0 )
+		tmpSign[0] = '-';
+	else
+		tmpSign[0] = ' ';
+	tmpSign[1] = '\0';
+
+	double tmpVal = (d < 0) ? -d : d;
+
+	int tmpInt1 = tmpVal;                  // Get the integer (678).
+	double tmpFrac = tmpVal - tmpInt1;      // Get fraction (0.0123).
+	for(int Pwr=0; Pwr < pres; Pwr++)
+		tmpFrac *= 10;
+
+	int tmpInt2 = trunc(tmpFrac);  // Turn into integer (123).
+
+	// Print as parts, note that you need 0-padding for fractional bit.
+	switch (pres)
+	{
+	case 1:
+	{
+		sprintf (Res, "%s%8.8d.%01d", tmpSign, tmpInt1, tmpInt2);
+	}break;
+	case 2:
+	{
+		sprintf (Res, "%s%7.7d.%02d", tmpSign, tmpInt1, tmpInt2);
+	}break;
+	case 3:
+	{
+		sprintf (Res, "%s%6.6d.%03d", tmpSign, tmpInt1, tmpInt2);
+	}break;
+	case 4:
+	{
+		sprintf (Res, "%s%5.5d.%04d", tmpSign, tmpInt1, tmpInt2);
+	}break;
+	case 5:
+	{
+		sprintf (Res, "%s%4.4d.%05d", tmpSign, tmpInt1, tmpInt2);
+	}break;
+
+	}
+}
 
 static void test_send_reponse(uint32_t State, char * pu8_Buff)
 {
@@ -41,8 +158,10 @@ Test::~Test() {
 int Test::Run(uint32_t State)
 {
 	GPIO_PinState PwrIn;
-	uint32_t count_1 = 0;
-	uint32_t count_2 = 0;
+	int32_t count_1 = 0;
+	int32_t count_2 = 0;
+	double Distance_1 = 0.0;
+	double Distance_2 = 0.0;
 	char dir_1 = '\0';
 	char dir_2 = '\0';
 	uint32_t PercentPower = Robocore->GetPercentPower();
@@ -70,38 +189,44 @@ int Test::Run(uint32_t State)
 	    }break;
 	    case STATE_ENC_READ :
 	    {
-	    	count_1 = __HAL_TIM_GET_COUNTER(&htim2);
-	    	count_2 = __HAL_TIM_GET_COUNTER(&htim5);
+	    	count_1 = Robocore->EncoderRightGetAbsoluteStep();
+	    	count_2 = Robocore->EncoderLeftGetAbsoluteStep();
+	    	Distance_1 = Robocore->EncoderRightGetAbsoluteMM();
+	    	Distance_2 = Robocore->EncoderLeftGetAbsoluteMM();
 
-	    	if (count_1 >= TIMER_INIT_VALUE)
+	    	if (count_1 > 0)
 	    	{
-	    		count_right = count_1 - TIMER_INIT_VALUE;
 	    		dir_1 = '+';
+	    		count_right = count_1;
 	    	}
 	    	else
 	    	{
-	    		count_right = TIMER_INIT_VALUE - count_1;
 	    		dir_1 = '-';
+	    		count_right = -count_1;
 	    	}
 
-	    	if (count_2 > TIMER_INIT_VALUE)
+	    	if (count_2 > 0)
 	    	{
-	    		count_left  = count_2 - TIMER_INIT_VALUE;
-	    		dir_2 = '-';
+	    		dir_2 = '+';
+	    		count_left = count_2;
 	    	}
 	    	else
 	    	{
-	    		count_left  = TIMER_INIT_VALUE - count_2;
-	    		dir_2 = '+';
+	    		dir_2 = '-';
+	    		count_left = -count_2;
 	    	}
 
-	    	printf("Tick right = %10.10u (%c)\n",
-	    			(unsigned int)count_right, dir_1);
-	    	printf("Tick left  = %10.10u (%c)\n",
-	    			(unsigned int)count_left, dir_2);
-	    	sprintf(TestResponse, "%10.10u:%c:%10.10u:%c",
+	    	test_printDouble(Distance_1, Float1, 2);
+	    	test_printDouble(Distance_2, Float2, 2);
+
+	    	/*printf("Tick right = %10.10u (%c) - %s\n",
+	    			(unsigned int)count_right, dir_1, Float1);
+	    	printf("Tick left  = %10.10u (%c) - %s\n",
+	    			(unsigned int)count_left, dir_2, Float2);
+*/
+	    	sprintf(TestResponse, "%10.10u:%c:%10.10u:%c:%s:%s",
 	    			(unsigned int)count_left, dir_2,
-					(unsigned int)count_right, dir_1);
+					(unsigned int)count_right, dir_1, Float1, Float2);
 	    	test_send_reponse(State, TestResponse);
 	    }break;
 	    case STATE_MOVE_FORWARD :
@@ -139,8 +264,19 @@ int Test::Run(uint32_t State)
 	    }break;
 	    case STATE_ODOM_PARAMS :
 	    {
-	    	sprintf(TestResponse, "%s",
-	    			"0000000.01:0001040.01:0000137.24:0000.78345");
+	    	Odom_t OdomVal = Robocore->GetOdomValue();
+
+	    	printf("JPB3 : test odometrie \n");
+
+	    	test_printInt(OdomVal.pos_x, Int1);
+	    	test_printInt(OdomVal.pos_y, Int2);
+	    	test_printFloat(OdomVal.angle, Float1, 3);
+	    	test_printFloat(OdomVal.speed, Float2, 3);
+	    	test_printFloat(OdomVal.accel, Float3, 3);
+	    	//test_printFloat(0000.78345, Float4, 5);
+
+	    	//printf(">> %s:%s:%s:%s \n",Float1,Float2,Float3,Float4);
+	    	sprintf(TestResponse, "%s:%s:%s:%s",Int1,Int2,Float1,Float2);
 	    	test_send_reponse(State, TestResponse);
 	    }break;
 	}

@@ -22,7 +22,9 @@ static void taskWrapper(const void* arg)
 	motionCtrl->task();
 }
 
-MotionControl::MotionControl() {
+MotionControl::MotionControl(RobotCore * Rob) {
+
+	Robocore = Rob;
 
 	osThreadDef(motionTask, taskWrapper, PRIORITY_MOTIONCTRL, 0, 128);
 	motionTaskHandle = osThreadCreate(osThread(motionTask), this);

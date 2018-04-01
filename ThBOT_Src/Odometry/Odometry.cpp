@@ -28,7 +28,9 @@ static void taskWrapper(const void* arg)
 	odom->task();
 }
 
-Odometry::Odometry() {
+Odometry::Odometry(RobotCore * Rob) {
+
+	Robocore = Rob;
 
 	osThreadDef(odomTask, taskWrapper, PRIORITY_ODOMETRY, 0, 128);
 	odomTaskHandle = osThreadCreate(osThread(odomTask), this);

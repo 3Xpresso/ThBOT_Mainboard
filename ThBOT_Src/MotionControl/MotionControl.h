@@ -22,14 +22,18 @@ enum
 	MOTION_MOTOR_MAX,
 };
 
+class RobotCore;
+
 class MotionControl {
 public:
-	MotionControl();
+	MotionControl(RobotCore * Rob);
 	virtual ~MotionControl();
 
 	void task(void);
 
 protected:
+
+	RobotCore * Robocore;
 
 	osThreadId motionTaskHandle;
 

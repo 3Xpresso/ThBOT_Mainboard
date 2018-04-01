@@ -94,8 +94,8 @@ void thb_fsm_ChangeModeState(uint32_t Mode, uint32_t State)
 
 RobotCore::RobotCore() {
 
-	odom       = new Odometry();
-	motionCtrl = new MotionControl();
+	odom       = new Odometry(this);
+	motionCtrl = new MotionControl(this);
 	test       = new Test(this);
 }
 

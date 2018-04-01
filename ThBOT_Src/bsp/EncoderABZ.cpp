@@ -46,8 +46,20 @@ double EncoderABZ::GetDeltaMM()
 	return delta_mm;
 }
 
+double EncoderABZ::GetAbsoluteMM()
+{
+	int32_t new_absolute = 0;
+	double new_distance = 0.0;
+
+	new_absolute = GetAbsoluteStep();
+	new_distance = new_absolute * MM_per_step;
+
+	return new_distance;
+}
+
 int32_t EncoderABZ::GetAbsoluteStep()
 {
+	uint32_t Count = 0;
 	int32_t absoluteCount = 0;
 
 	switch (this->id)
@@ -55,13 +67,53 @@ int32_t EncoderABZ::GetAbsoluteStep()
 		case ENCODER_LEFT:
 		{
 			const uint32_t count_1 = __HAL_TIM_GET_COUNTER(&htim5);
-			absoluteCount = TIMER_INIT_VALUE - count_1;
+			if (count_1 > TIMER_INIT_VALUE)
+			{
+				Count = count_1 - TIMER_INIT_VALUE;
+				absoluteCount = -Count;
+			}
+			else
+			{
+				absoluteCount = TIMER_INIT_VALUE-count_1;
+			}
+//			printf("JPB : %i\n", absoluteCount);
 		}break;
 		case ENCODER_RIGHT:
 		{
 			const uint32_t count_1 = __HAL_TIM_GET_COUNTER(&htim2);
-			absoluteCount = TIMER_INIT_VALUE - count_1;
+			if (count_1 >= TIMER_INIT_VALUE)
+				absoluteCount = count_1 - TIMER_INIT_VALUE;
+			else
+			{
+				Count = TIMER_INIT_VALUE-count_1;
+				absoluteCount = -Count;
+			}
+//			printf("JPB : %i\n", absoluteCount);
 		}break;
 	}
 	return absoluteCount;
 }
+
+/*
+	    	if (count_1 >= TIMER_INIT_VALUE)
+	    	{
+	    		count_right = count_1 - TIMER_INIT_VALUE;
+	    		dir_1 = '+';
+	    	}
+	    	else
+	    	{
+	    		count_right = TIMER_INIT_VALUE - count_1;
+	    		dir_1 = '-';
+	    	}
+
+	    	if (count_2 > TIMER_INIT_VALUE)
+	    	{
+	    		count_left  = count_2 - TIMER_INIT_VALUE;
+	    		dir_2 = '-';
+	    	}
+	    	else
+	    	{
+	    		count_left  = TIMER_INIT_VALUE - count_2;
+	    		dir_2 = '+';
+	    	}
+ */

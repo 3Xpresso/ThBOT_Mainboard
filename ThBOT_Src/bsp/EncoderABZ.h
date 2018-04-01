@@ -15,12 +15,15 @@ public:
 	virtual ~EncoderABZ();
 
 	int32_t GetDeltaStep();
-	double GetDeltaMM();
+	double  GetDeltaMM();
+
+	int32_t GetAbsoluteStep();
+	double  GetAbsoluteMM();
 
 protected:
 	uint32_t id;
 
-	int32_t GetAbsoluteStep();
+//	int32_t GetAbsoluteStep();
 private:
 	int32_t Absolute_value;
 	double  MM_per_step;

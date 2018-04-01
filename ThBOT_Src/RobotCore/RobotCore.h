@@ -26,6 +26,26 @@ public:
 		return thb_param_GetPercentPower();
 	}
 
+	Odom_t GetOdomValue(){
+		return odom->GetOdomValue();
+	}
+
+	int32_t EncoderLeftGetAbsoluteStep(){
+		return odom->EncoderLeftGetAbsoluteStep();
+	}
+
+	int32_t EncoderRightGetAbsoluteStep(){
+		return odom->EncoderRightGetAbsoluteStep();
+	}
+
+	double  EncoderLeftGetAbsoluteMM(){
+		return odom->EncoderLeftGetAbsoluteMM();
+	}
+
+	double  EncoderRightGetAbsoluteMM(){
+		return odom->EncoderRightGetAbsoluteMM();
+	}
+
 protected:
 	Odometry *      odom;
 	MotionControl * motionCtrl;
