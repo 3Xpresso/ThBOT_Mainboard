@@ -75,6 +75,14 @@ struct RobotCore * ptr_RobotCore;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
+#ifdef __GNUC__
+/* With GCC, small printf (option LD Linker->Libraries->Small printf
+   set to 'Yes') calls __io_putchar() */
+#define PUTCHAR_PROTOTYPE int __io_putchar(int ch)
+#else
+#define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f)
+#endif /* __GNUC__ */
+
 void SystemClock_Config(void);
 void MX_FREERTOS_Init(void);
 
@@ -88,6 +96,20 @@ extern void initialise_monitor_handles(void);
 // Stub for release version
 __weak void initialise_monitor_handles(void)
 {
+}
+
+/**
+  * @brief  Retargets the C library printf function to the USART.
+  * @param  None
+  * @retval None
+  */
+PUTCHAR_PROTOTYPE
+{
+  /* Place your implementation of fputc here */
+  /* e.g. write a character to the USART and Loop until the end of transmission */
+  thb_UART4_SendData((char *)&ch, 1);
+
+  return ch;
 }
 
 /************************************************************************************/
@@ -152,10 +174,10 @@ void MainLoop(void)
 
 int main(void)
 {
+
   /* USER CODE BEGIN 1 */
 	initialise_monitor_handles();
 
-	printf("Hello !\n");
   /* USER CODE END 1 */
 
   /* MCU Configuration----------------------------------------------------------*/
@@ -183,8 +205,10 @@ int main(void)
   MX_TIM5_Init();
   MX_UART5_Init();
   MX_ADC3_Init();
+  MX_UART4_Init();
 
   /* USER CODE BEGIN 2 */
+  thb_UART4_Init();
   thb_UART5_Init();
 
   HAL_GPIO_WritePin(LD1_GPIO_Port, LD1_Pin, GPIO_PIN_SET);
@@ -208,7 +232,7 @@ int main(void)
   RobotCore_C_init(ptr_RobotCore);
 
   //SCnSCB->ACTLR |= SCnSCB_ACTLR_DISDEFWBUF_Pos;
-
+	printf("Hello !\n");
   /* USER CODE END 2 */
 
   /* Call init function for freertos objects (in freertos.c) */

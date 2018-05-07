@@ -68,6 +68,7 @@
 
 extern void _Error_Handler(char *, int);
 
+void MX_UART4_Init(void);
 void MX_UART5_Init(void);
 
 /* USER CODE BEGIN Prototypes */

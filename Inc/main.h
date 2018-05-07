@@ -120,6 +120,10 @@
 #define TMS_GPIO_Port GPIOA
 #define TCK_Pin GPIO_PIN_14
 #define TCK_GPIO_Port GPIOA
+#define DBG_UART_RX_Pin GPIO_PIN_10
+#define DBG_UART_RX_GPIO_Port GPIOC
+#define DBG_UART_TX_Pin GPIO_PIN_11
+#define DBG_UART_TX_GPIO_Port GPIOC
 #define L_ENC_SIGB_Pin GPIO_PIN_3
 #define L_ENC_SIGB_GPIO_Port GPIOB
 #define LD2_Pin GPIO_PIN_7
