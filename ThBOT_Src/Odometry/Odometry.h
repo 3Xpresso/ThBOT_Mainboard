@@ -16,8 +16,8 @@
 #define ODOMETRY_ODOMETRY_H_
 
 typedef struct {
-  int32_t pos_x;
-  int32_t pos_y;
+  double pos_x;
+  double pos_y;
   double angle;
   double speed; // mm/ms
   double accel; // Speed/ms
@@ -30,7 +30,7 @@ public:
 	Odometry(RobotCore * Rob);
 	virtual ~Odometry();
 
-	void Init(int32_t pos_x, int32_t pos_y, double angle);
+	void Init(double pos_x, double pos_y, double angle);
 
 	void task();
 
@@ -66,8 +66,8 @@ protected:
 
 	void Update_value(double delta_left_mm, double delta_right_mm);
 
-	int32_t Pos_x;
-	int32_t Pos_y;
+	double Pos_x;
+	double Pos_y;
 	double Angle;
 	double Speed; // mm/ms
 	double Accel; // Speed/ms

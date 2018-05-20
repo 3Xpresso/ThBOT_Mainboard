@@ -37,10 +37,10 @@ Odometry::Odometry(RobotCore * Rob) {
 
 	odomEncoderLeft  = new EncoderABZ(ENCODER_LEFT);
 	odomEncoderRight = new EncoderABZ(ENCODER_RIGHT);
-	Init(0, 0, 0.0);
+	Init(0.0, 0.0, 0.0);
 }
 
-void Odometry::Init(int32_t pos_x, int32_t pos_y, double angle)
+void Odometry::Init(double pos_x, double pos_y, double angle)
 {
 	Pos_x = pos_x;
 	Pos_y = pos_y;
@@ -92,9 +92,9 @@ void Odometry::Update_value(double delta_left_mm, double delta_right_mm)
 
 	Speed = deplacement_mm / delay_ms;
 
-	int32_t delta_x = deplacement_mm*cos(Angle);
-	int32_t delta_y = deplacement_mm*sin(Angle);
-	double delta_angle = (double)(delta_left_mm - delta_right_mm) / ENCODER_DISTANCE;
+	double delta_x = deplacement_mm*cos(Angle);
+	double delta_y = deplacement_mm*sin(Angle);
+	double delta_angle = (delta_left_mm - delta_right_mm) / ENCODER_DISTANCE;
 
 	Angle = Angle + delta_angle;
 	Pos_x = Pos_x + delta_x;

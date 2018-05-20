@@ -29,6 +29,19 @@ public:
 	MotionControl(RobotCore * Rob);
 	virtual ~MotionControl();
 
+	void SetMotionMotor(uint32_t Id, uint32_t Direction, uint32_t Percentage){
+		switch(Id) {
+		case MOTION_MOTOR_LEFT:
+			motionMotorLeft->SetPercentPower(Percentage);
+			motionMotorLeft->SetDirection(Direction);
+		break;
+		case MOTION_MOTOR_RIGHT:
+			motionMotorRight->SetPercentPower(Percentage);
+			motionMotorRight->SetDirection(Direction);
+		break;
+		}
+	}
+
 	void task(void);
 
 protected:

@@ -20,12 +20,13 @@
 static char SendResponse[80];
 static char TestResponse[64];
 
-static char Int1[12];
-static char Int2[12];
+//static char Int1[12];
+//static char Int2[12];
 static char Float1[12];
 static char Float2[12];
 static char Float3[12];
 static char Float4[12];
+static char Float5[12];
 
 static int32_t count_left = 0;
 static int32_t count_right = 0;
@@ -140,6 +141,34 @@ static void test_printDouble(double d, char * Res, int pres)
 	}
 }
 
+static void test_printAngle(double rad, char * Res)
+{
+	//https://stackoverflow.com/questions/905928/using-floats-with-sprintf-in-embedded-c
+	//float adc_read = 678.0123;
+
+	char tmpSign[2];// = (f < 0) ? "-" : " ";
+	if (rad < 0 )
+		tmpSign[0] = '-';
+	else
+		tmpSign[0] = ' ';
+	tmpSign[1] = '\0';
+
+	double tmpVal = (rad < 0) ? -rad : rad;
+
+	int tmpInt1 = tmpVal;                  // Get the integer (678).
+	double tmpFrac = tmpVal - tmpInt1;      // Get fraction (0.0123).
+	for(int Pwr=0; Pwr < 3; Pwr++)
+		tmpFrac *= 10;
+
+	int tmpInt2 = trunc(tmpFrac);  // Turn into integer (123).
+
+	tmpVal = (rad < 0) ? -rad : rad;
+	tmpVal = (tmpVal*180)/M_PI;
+	int tmpInt3 = tmpVal;
+
+	sprintf (Res, "%s%1.1d.%03d(%3.3d)", tmpSign, tmpInt1, tmpInt2,tmpInt3);
+}
+
 static void test_send_reponse(uint32_t State, char * pu8_Buff)
 {
 	sprintf(SendResponse, "RSP:%2.2u:%2.2u:%s\n", MODE_TESTS, (unsigned int)State, pu8_Buff);
@@ -189,8 +218,8 @@ int Test::Run(uint32_t State)
 	    }break;
 	    case STATE_ENC_READ :
 	    {
-	    	count_1 = Robocore->EncoderRightGetAbsoluteStep();
-	    	count_2 = Robocore->EncoderLeftGetAbsoluteStep();
+	    	count_1    = Robocore->EncoderRightGetAbsoluteStep();
+	    	count_2    = Robocore->EncoderLeftGetAbsoluteStep();
 	    	Distance_1 = Robocore->EncoderRightGetAbsoluteMM();
 	    	Distance_2 = Robocore->EncoderLeftGetAbsoluteMM();
 
@@ -233,34 +262,30 @@ int Test::Run(uint32_t State)
 	    {
 	    	printf("JPB3 : test marche avant \n");
 	    	thb_SetPwmRight(PercentPower);
-	    	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_7, GPIO_PIN_RESET);
-	    	thb_SetPwmLeft(PercentPower);
-	    	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_11, GPIO_PIN_SET);
 
+	    	Robocore->SetMotionMotor(MOTION_MOTOR_LEFT, FORWARD, PercentPower);
+	    	Robocore->SetMotionMotor(MOTION_MOTOR_RIGHT, FORWARD, PercentPower);
 	    }break;
 	    case STATE_MOVE_BACKWARD :
 	    {
 	    	printf("JPB3 : test marche arriere \n");
 	    	thb_SetPwmRight(PercentPower);
-	    	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_7, GPIO_PIN_SET);
-	    	thb_SetPwmLeft(PercentPower);
-	    	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_11, GPIO_PIN_RESET);
+	    	Robocore->SetMotionMotor(MOTION_MOTOR_LEFT, BACKWARD, PercentPower);
+	    	Robocore->SetMotionMotor(MOTION_MOTOR_RIGHT, BACKWARD, PercentPower);
 	    }break;
 	    case STATE_TURN_RIGTH :
 	    {
 	    	printf("JPB3 : test rotation a droite \n");
 	    	thb_SetPwmRight(PercentPower);
-	    	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_7, GPIO_PIN_SET);
-	    	thb_SetPwmLeft(PercentPower);
-	    	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_11, GPIO_PIN_SET);
+	    	Robocore->SetMotionMotor(MOTION_MOTOR_LEFT, FORWARD, PercentPower);
+	    	Robocore->SetMotionMotor(MOTION_MOTOR_RIGHT, BACKWARD, PercentPower);
 	    }break;
 	    case STATE_TURN_LEFT :
 	    {
 	    	printf("JPB3 : test rotation a gauche \n");
 	    	thb_SetPwmRight(PercentPower);
-	    	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_7, GPIO_PIN_RESET);
-	    	thb_SetPwmLeft(PercentPower);
-	    	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_11, GPIO_PIN_RESET);
+	    	Robocore->SetMotionMotor(MOTION_MOTOR_LEFT, BACKWARD, PercentPower);
+	    	Robocore->SetMotionMotor(MOTION_MOTOR_RIGHT, FORWARD, PercentPower);
 	    }break;
 	    case STATE_ODOM_PARAMS :
 	    {
@@ -268,15 +293,15 @@ int Test::Run(uint32_t State)
 
 	    	printf("JPB3 : test odometrie \n");
 
-	    	test_printInt(OdomVal.pos_x, Int1);
-	    	test_printInt(OdomVal.pos_y, Int2);
-	    	test_printFloat(OdomVal.angle, Float1, 3);
+	    	test_printFloat(OdomVal.pos_x, Float4, 3);
+	    	test_printFloat(OdomVal.pos_y, Float5, 3);
+	    	test_printAngle(OdomVal.angle, Float1);
 	    	test_printFloat(OdomVal.speed, Float2, 3);
 	    	test_printFloat(OdomVal.accel, Float3, 3);
 	    	//test_printFloat(0000.78345, Float4, 5);
 
 	    	//printf(">> %s:%s:%s:%s \n",Float1,Float2,Float3,Float4);
-	    	sprintf(TestResponse, "%s:%s:%s:%s",Int1,Int2,Float1,Float2);
+	    	sprintf(TestResponse, "%s:%s:%s:%s",Float4,Float5,Float1,Float2);
 	    	test_send_reponse(State, TestResponse);
 	    }break;
 	}

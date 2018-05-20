@@ -26,6 +26,10 @@ public:
 		return thb_param_GetPercentPower();
 	}
 
+	void SetMotionMotor(uint32_t Id, uint32_t Direction, uint32_t Percentage){
+		return motionCtrl->SetMotionMotor(Id, Direction, Percentage);
+	}
+
 	Odom_t GetOdomValue(){
 		return odom->GetOdomValue();
 	}

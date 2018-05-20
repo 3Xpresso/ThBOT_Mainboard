@@ -44,14 +44,14 @@ void DcMotor::SetDirection(uint32_t Direction)
 	{
 	case BSP_DCMOTOR_1 :
 	{
-		if (Direction == FORWARD)
+		if (Direction == BACKWARD)
 			HAL_GPIO_WritePin(GPIOD, GPIO_PIN_11, GPIO_PIN_SET);
 		else
 			HAL_GPIO_WritePin(GPIOD, GPIO_PIN_11, GPIO_PIN_RESET);
 	}break;
 	case BSP_DCMOTOR_2 :
 	{
-		if (Direction == FORWARD)
+		if (Direction == BACKWARD)
 			HAL_GPIO_WritePin(GPIOA, GPIO_PIN_7, GPIO_PIN_RESET);
 		else
 			HAL_GPIO_WritePin(GPIOA, GPIO_PIN_7, GPIO_PIN_SET);
