@@ -45,6 +45,7 @@ void Odometry::Init(double pos_x, double pos_y, double angle)
 	Pos_x = pos_x;
 	Pos_y = pos_y;
 	Angle = angle;
+	Accel = 0.0;
 	previous_tick_count = xTaskGetTickCount();
 }
 
