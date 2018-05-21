@@ -71,7 +71,7 @@ static void test_printFloat(float f, char * Res, int pres)
 	{
 	case 1:
 	{
-		sprintf (Res, "%s%8.8d.%01d", tmpSign, tmpInt1, tmpInt2);
+		sprintf (Res, "%s%8.8d.%1.1d", tmpSign, tmpInt1, tmpInt2);
 	}break;
 	case 2:
 	{
@@ -79,7 +79,7 @@ static void test_printFloat(float f, char * Res, int pres)
 	}break;
 	case 3:
 	{
-		sprintf (Res, "%s%6.6d.%03d", tmpSign, tmpInt1, tmpInt2);
+		sprintf (Res, "%s%6.6d.%3.3d", tmpSign, tmpInt1, tmpInt2);
 	}break;
 	case 4:
 	{
@@ -91,6 +91,7 @@ static void test_printFloat(float f, char * Res, int pres)
 	}break;
 
 	}
+	Res[11] = '\0';
 }
 
 static void test_printDouble(double d, char * Res, int pres)
@@ -139,6 +140,7 @@ static void test_printDouble(double d, char * Res, int pres)
 	}break;
 
 	}
+	Res[11] = '\0';
 }
 
 static void test_printAngle(double rad, char * Res)
@@ -167,6 +169,7 @@ static void test_printAngle(double rad, char * Res)
 	int tmpInt3 = tmpVal;
 
 	sprintf (Res, "%s%1.1d.%03d(%3.3d)", tmpSign, tmpInt1, tmpInt2,tmpInt3);
+	Res[11] = '\0';
 }
 
 static void test_send_reponse(uint32_t State, char * pu8_Buff)
@@ -184,6 +187,27 @@ Test::Test(RobotCore * Rob) {
 Test::~Test() {
 }
 
+void Test::TurnLeft(uint32_t PercentPower, double TargetAngle)
+{
+	Odom_t OdomVal = Robocore->GetOdomValue();
+	double StartAngle = OdomVal.angle;
+
+	Robocore->SetMotionMotor(MOTION_MOTOR_LEFT, BACKWARD, PercentPower);
+	Robocore->SetMotionMotor(MOTION_MOTOR_RIGHT, FORWARD, PercentPower);
+
+	while((((OdomVal.angle-StartAngle)*180)/M_PI) >= TargetAngle)
+	{
+		osDelay(50);
+		OdomVal = Robocore->GetOdomValue();
+	}
+	Robocore->SetMotionMotor(MOTION_MOTOR_LEFT, BACKWARD, 0);
+	Robocore->SetMotionMotor(MOTION_MOTOR_RIGHT, FORWARD, 0);
+
+	printf("TurnLeft: target angle %f => achieved %f\n",
+			TargetAngle,
+			(((OdomVal.angle-StartAngle)*180)/M_PI));
+}
+
 int Test::Run(uint32_t State)
 {
 	GPIO_PinState PwrIn;
@@ -199,8 +223,8 @@ int Test::Run(uint32_t State)
 	{
     	case STATE_IDLE :
     	{
-    		thb_SetPwmRight(0);
-    		thb_SetPwmLeft(0);
+    		Robocore->SetMotionMotor(MOTION_MOTOR_LEFT, BACKWARD, 0);
+    		Robocore->SetMotionMotor(MOTION_MOTOR_RIGHT, FORWARD, 0);
     	    return 0;
     	}break;
 	    case STATE_GET_PWR_STATE :
@@ -287,20 +311,51 @@ int Test::Run(uint32_t State)
 	    	Robocore->SetMotionMotor(MOTION_MOTOR_LEFT, BACKWARD, PercentPower);
 	    	Robocore->SetMotionMotor(MOTION_MOTOR_RIGHT, FORWARD, PercentPower);
 	    }break;
+
+	    case STATE_TURN_LEFT_45 :
+	    {
+	    	printf("JPB3 : test rotation a gauche de 45 degre \n");
+	    	thb_SetPwmRight(PercentPower);
+
+	    	TurnLeft(PercentPower, -45.0);
+	    }break;
+
+	    case STATE_TURN_LEFT_90 :
+	    {
+	    	printf("JPB3 : test rotation a gauche de 90 degre \n");
+	    	thb_SetPwmRight(PercentPower);
+
+	    	TurnLeft(PercentPower, -90.0);
+	    }break;
+
+	    case STATE_TURN_LEFT_180 :
+	    {
+	    	printf("JPB3 : test rotation a gauche de 180 degre \n");
+	    	thb_SetPwmRight(PercentPower);
+
+	    	TurnLeft(PercentPower, -180.0);
+	    }break;
+
+	    case STATE_TURN_LEFT_270 :
+	    {
+	    	printf("JPB3 : test rotation a gauche de 270 degre \n");
+	    	thb_SetPwmRight(PercentPower);
+
+	    	TurnLeft(PercentPower, -270.0);
+	    }break;
+
 	    case STATE_ODOM_PARAMS :
 	    {
 	    	Odom_t OdomVal = Robocore->GetOdomValue();
 
-	    	printf("JPB3 : test odometrie \n");
+	    	printf("JPB3 : test odometrie\n");
 
-	    	test_printFloat(OdomVal.pos_x, Float4, 3);
-	    	test_printFloat(OdomVal.pos_y, Float5, 3);
+	    	test_printDouble(OdomVal.pos_x, Float4, 3);
+	    	test_printDouble(OdomVal.pos_y, Float5, 3);
 	    	test_printAngle(OdomVal.angle, Float1);
 	    	test_printFloat(OdomVal.speed, Float2, 3);
 	    	test_printFloat(OdomVal.accel, Float3, 3);
-	    	//test_printFloat(0000.78345, Float4, 5);
 
-	    	//printf(">> %s:%s:%s:%s \n",Float1,Float2,Float3,Float4);
 	    	sprintf(TestResponse, "%s:%s:%s:%s",Float4,Float5,Float1,Float2);
 	    	test_send_reponse(State, TestResponse);
 	    }break;

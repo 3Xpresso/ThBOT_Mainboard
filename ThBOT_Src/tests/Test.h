@@ -23,6 +23,7 @@ public:
 
 protected:
 	RobotCore * Robocore;
+	void TurnLeft(uint32_t PercentPower, double TargetAngle);
 };
 
 
