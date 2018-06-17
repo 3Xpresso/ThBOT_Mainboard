@@ -50,6 +50,14 @@ public:
 		return odom->EncoderRightGetAbsoluteMM();
 	}
 
+	int32_t EncoderLeftAbsoluteStepFromDelta(){
+		return odom->EncoderLeftGetAbsoluteStepFromDelta();
+	}
+
+	int32_t EncoderRightGetAbsoluteStepFromDelta(){
+		return odom->EncoderRightGetAbsoluteStepFromDelta();
+	}
+
 protected:
 	Odometry *      odom;
 	MotionControl * motionCtrl;

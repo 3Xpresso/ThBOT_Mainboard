@@ -54,6 +54,14 @@ public:
 		return odomEncoderRight->GetAbsoluteStep();
 	}
 
+	int32_t EncoderLeftGetAbsoluteStepFromDelta(){
+		return odomEncoderLeft->GetAbsoluteStepFromDelta();
+	}
+
+	int32_t EncoderRightGetAbsoluteStepFromDelta(){
+		return odomEncoderRight->GetAbsoluteStepFromDelta();
+	}
+
 	double EncoderLeftGetAbsoluteMM(){
 		return odomEncoderLeft->GetAbsoluteMM();
 	}

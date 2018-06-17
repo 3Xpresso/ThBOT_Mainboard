@@ -17,8 +17,8 @@
 #include "thb-fsm.h"
 #include "thb-bsp.h"
 
-static char SendResponse[80];
-static char TestResponse[64];
+static char SendResponse[96];
+static char TestResponse[96-12];
 
 //static char Int1[12];
 //static char Int2[12];
@@ -27,9 +27,6 @@ static char Float2[12];
 static char Float3[12];
 static char Float4[12];
 static char Float5[12];
-
-static int32_t count_left = 0;
-static int32_t count_right = 0;
 
 static void test_printInt(int i, char * Res)
 {
@@ -195,7 +192,7 @@ void Test::TurnLeft(uint32_t PercentPower, double TargetAngle)
 	Robocore->SetMotionMotor(MOTION_MOTOR_LEFT, BACKWARD, PercentPower);
 	Robocore->SetMotionMotor(MOTION_MOTOR_RIGHT, FORWARD, PercentPower);
 
-	while((((OdomVal.angle-StartAngle)*180)/M_PI) >= TargetAngle)
+	while((((OdomVal.angle-StartAngle)*180)/M_PI) < TargetAngle)
 	{
 		osDelay(50);
 		OdomVal = Robocore->GetOdomValue();
@@ -213,10 +210,19 @@ int Test::Run(uint32_t State)
 	GPIO_PinState PwrIn;
 	int32_t count_1 = 0;
 	int32_t count_2 = 0;
+	int32_t count_1_d = 0;
+	int32_t count_2_d = 0;
+	int32_t count_left = 0;
+	int32_t count_right = 0;
+	int32_t count_left_d = 0;
+	int32_t count_right_d = 0;
 	double Distance_1 = 0.0;
 	double Distance_2 = 0.0;
 	char dir_1 = '\0';
 	char dir_2 = '\0';
+	char dir_1_d = '\0';
+	char dir_2_d = '\0';
+
 	uint32_t PercentPower = Robocore->GetPercentPower();
 
 	switch (State)
@@ -247,6 +253,11 @@ int Test::Run(uint32_t State)
 	    	Distance_1 = Robocore->EncoderRightGetAbsoluteMM();
 	    	Distance_2 = Robocore->EncoderLeftGetAbsoluteMM();
 
+	    	count_1_d = Robocore->EncoderRightGetAbsoluteStepFromDelta();
+	    	count_2_d = Robocore->EncoderLeftAbsoluteStepFromDelta();
+	    	dir_1_d = '\0';
+	    	dir_2_d = '\0';
+
 	    	if (count_1 > 0)
 	    	{
 	    		dir_1 = '+';
@@ -269,6 +280,28 @@ int Test::Run(uint32_t State)
 	    		count_left = -count_2;
 	    	}
 
+	    	if (count_1_d > 0)
+	    	{
+	    		dir_1_d = '+';
+	    		count_right_d = count_1_d;
+	    	}
+	    	else
+	    	{
+	    		dir_1_d = '-';
+	    		count_right_d = -count_1_d;
+	    	}
+
+	    	if (count_2_d > 0)
+	    	{
+	    		dir_2_d = '+';
+	    		count_left_d = count_2_d;
+	    	}
+	    	else
+	    	{
+	    		dir_2_d = '-';
+	    		count_left_d = -count_2_d;
+	    	}
+
 	    	test_printDouble(Distance_1, Float1, 2);
 	    	test_printDouble(Distance_2, Float2, 2);
 
@@ -277,9 +310,12 @@ int Test::Run(uint32_t State)
 	    	printf("Tick left  = %10.10u (%c) - %s\n",
 	    			(unsigned int)count_left, dir_2, Float2);
 */
-	    	sprintf(TestResponse, "%10.10u:%c:%10.10u:%c:%s:%s",
+	    	sprintf(TestResponse, "%10.10u:%c:%10.10u:%c:%s:%s:%10.10u:%c:%10.10u:%c",
 	    			(unsigned int)count_left, dir_2,
-					(unsigned int)count_right, dir_1, Float1, Float2);
+					(unsigned int)count_right, dir_1,
+					Float2, Float1,
+					(unsigned int)count_left_d, dir_2_d,
+					(unsigned int)count_right_d, dir_1_d);
 	    	test_send_reponse(State, TestResponse);
 	    }break;
 	    case STATE_MOVE_FORWARD :
@@ -317,7 +353,7 @@ int Test::Run(uint32_t State)
 	    	printf("JPB3 : test rotation a gauche de 45 degre \n");
 	    	thb_SetPwmRight(PercentPower);
 
-	    	TurnLeft(PercentPower, -45.0);
+	    	TurnLeft(PercentPower, 45.0);
 	    }break;
 
 	    case STATE_TURN_LEFT_90 :
@@ -325,7 +361,7 @@ int Test::Run(uint32_t State)
 	    	printf("JPB3 : test rotation a gauche de 90 degre \n");
 	    	thb_SetPwmRight(PercentPower);
 
-	    	TurnLeft(PercentPower, -90.0);
+	    	TurnLeft(PercentPower, 90.0);
 	    }break;
 
 	    case STATE_TURN_LEFT_180 :
@@ -333,7 +369,7 @@ int Test::Run(uint32_t State)
 	    	printf("JPB3 : test rotation a gauche de 180 degre \n");
 	    	thb_SetPwmRight(PercentPower);
 
-	    	TurnLeft(PercentPower, -180.0);
+	    	TurnLeft(PercentPower, 180.0);
 	    }break;
 
 	    case STATE_TURN_LEFT_270 :
@@ -341,7 +377,7 @@ int Test::Run(uint32_t State)
 	    	printf("JPB3 : test rotation a gauche de 270 degre \n");
 	    	thb_SetPwmRight(PercentPower);
 
-	    	TurnLeft(PercentPower, -270.0);
+	    	TurnLeft(PercentPower, 270.0);
 	    }break;
 
 	    case STATE_ODOM_PARAMS :

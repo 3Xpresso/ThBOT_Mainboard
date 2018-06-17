@@ -84,11 +84,28 @@ void thb_UART5Task(void const *argument){
 void thb_UART5_SendData(char * pu8_Buff, uint32_t DataLen)
 {
 	uint32_t Index;
+	uint32_t MoreBytes = 0;
+
+    if (DataLen > 60)
+    {
+    	MoreBytes = DataLen - 60;
+    	DataLen = 60;
+    }
 
 	for(Index=0; Index < DataLen; Index++)
 	{
 	    LL_USART_TransmitData8(UART5, pu8_Buff[Index]);
 	    while (!LL_USART_IsActiveFlag_TXE(UART5)) {}
+	}
+
+	if (MoreBytes > 0)
+	{
+		osDelay(300);
+		for(Index=0; Index < MoreBytes; Index++)
+		{
+			LL_USART_TransmitData8(UART5, pu8_Buff[DataLen+Index]);
+			while (!LL_USART_IsActiveFlag_TXE(UART5)) {}
+		}
 	}
 }
 

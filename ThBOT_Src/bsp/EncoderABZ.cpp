@@ -13,9 +13,10 @@
 #define TIMER_INIT_VALUE     2147483647
 
 EncoderABZ::EncoderABZ(Encodeur_t id) {
-	this->id = id;
-	this->Absolute_value = 0;
-	this->MM_per_step = (M_PI * ENCODER_WHEEL_SIZE / ENCODER_NB_STEP);
+	this->id                     = id;
+	this->LastAbsoluteValue      = 0;
+	this->AbsoluteStepFromDelta  = 0;
+	this->MM_per_step            = (M_PI * ENCODER_WHEEL_SIZE / ENCODER_NB_STEP);
 }
 
 EncoderABZ::~EncoderABZ() {
@@ -30,10 +31,11 @@ int32_t EncoderABZ::GetDeltaStep()
 	new_absolute = GetAbsoluteStep();
 
 	// calculate delta (new - old)
-	delta = new_absolute - this->Absolute_value;
+	delta = new_absolute - this->LastAbsoluteValue;
+	this->AbsoluteStepFromDelta += delta;
 
 	//update reference = new
-	this->Absolute_value = new_absolute;
+	this->LastAbsoluteValue = new_absolute;
 
 	return delta;
 }
@@ -94,26 +96,7 @@ int32_t EncoderABZ::GetAbsoluteStep()
 	return absoluteCount;
 }
 
-/*
-	    	if (count_1 >= TIMER_INIT_VALUE)
-	    	{
-	    		count_right = count_1 - TIMER_INIT_VALUE;
-	    		dir_1 = '+';
-	    	}
-	    	else
-	    	{
-	    		count_right = TIMER_INIT_VALUE - count_1;
-	    		dir_1 = '-';
-	    	}
-
-	    	if (count_2 > TIMER_INIT_VALUE)
-	    	{
-	    		count_left  = count_2 - TIMER_INIT_VALUE;
-	    		dir_2 = '-';
-	    	}
-	    	else
-	    	{
-	    		count_left  = TIMER_INIT_VALUE - count_2;
-	    		dir_2 = '+';
-	    	}
- */
+int32_t EncoderABZ::GetAbsoluteStepFromDelta()
+{
+	return this->AbsoluteStepFromDelta;
+}

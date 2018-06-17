@@ -67,10 +67,6 @@ void Odometry::task(void)
 		double delta_r = odomEncoderRight->GetDeltaMM();
 		Update_value(delta_l, delta_r);
 
-		odomEncoderLeft->GetDeltaStep();
-		odomEncoderRight->GetDeltaStep();
-
-
 		vTaskDelayUntil( &xLastWakeTime, pdMS_TO_TICKS( 10 ));
 	}
 
@@ -88,14 +84,12 @@ void Odometry::Update_value(double delta_left_mm, double delta_right_mm)
 	  return;
 
 	double deplacement_mm = (delta_left_mm + delta_right_mm)/2;
-	if (!deplacement_mm)
-	  return;
 
 	Speed = deplacement_mm / delay_ms;
 
 	double delta_x = deplacement_mm*cos(Angle);
 	double delta_y = deplacement_mm*sin(Angle);
-	double delta_angle = (delta_left_mm - delta_right_mm) / ENCODER_DISTANCE;
+	double delta_angle = (delta_right_mm - delta_left_mm) / ENCODER_DISTANCE;
 
 	Angle = Angle + delta_angle;
 	Pos_x = Pos_x + delta_x;

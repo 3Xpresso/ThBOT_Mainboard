@@ -18,6 +18,7 @@ public:
 	double  GetDeltaMM();
 
 	int32_t GetAbsoluteStep();
+	int32_t GetAbsoluteStepFromDelta();
 	double  GetAbsoluteMM();
 
 protected:
@@ -25,7 +26,8 @@ protected:
 
 //	int32_t GetAbsoluteStep();
 private:
-	int32_t Absolute_value;
+	int32_t LastAbsoluteValue;
+	int32_t AbsoluteStepFromDelta;
 	double  MM_per_step;
 };
 
