@@ -23,6 +23,11 @@ typedef struct {
   double accel; // Speed/ms
 } Odom_t;
 
+typedef struct{
+  double SpeedLeft;
+  double SpeedRight;
+}Wheel_t;
+
 class RobotCore;
 
 class Odometry {
@@ -34,17 +39,7 @@ public:
 
 	void task();
 
-	Odom_t GetOdomValue()
-	{
-	  Odom_t res = {
-	      this->Pos_x,
-	      this->Pos_y,
-	      this->Angle,
-	      this->Speed,
-	      this->Accel
-	  };
-	  return res;
-	}
+	Odom_t GetOdomValue();
 
 	int32_t EncoderLeftGetAbsoluteStep(){
 		return odomEncoderLeft->GetAbsoluteStep();
@@ -70,15 +65,18 @@ public:
 		return odomEncoderRight->GetAbsoluteMM();
 	}
 
-protected:
+	Wheel_t UpdateValue();
 
-	void Update_value(double delta_left_mm, double delta_right_mm);
+protected:
 
 	double Pos_x;
 	double Pos_y;
 	double Angle;
-	double Speed; // mm/ms
+	double Speed; // mm/s
 	double Accel; // Speed/ms
+
+	double SpeedLeft;  // mm/s
+	double SpeedRight; // mm/s
 
 	TickType_t previous_tick_count;
 
@@ -88,6 +86,8 @@ protected:
 	EncoderABZ * odomEncoderRight;
 
 	RobotCore * Robocore;
+
+	void Update_value(double delta_left_mm, double delta_right_mm);
 };
 
 #endif /* ODOMETRY_ODOMETRY_H_ */

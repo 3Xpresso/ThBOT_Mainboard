@@ -26,11 +26,14 @@ public:
 	DcMotor(uint32_t id);
 	virtual ~DcMotor();
 
-	void SetPercentPower(uint32_t Percentage);
+	void SetSpeed(double expectedSpeed);
+	void SetPercentPower(float Percentage);
 	void SetDirection(uint32_t Direction);
+	void UpdatePercentPower(float DeltaPercentage);
 
 protected:
 	uint32_t id;
+	float    Percentage;
 };
 
 #endif /* BSP_DCMOTOR_H_ */

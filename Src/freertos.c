@@ -54,7 +54,6 @@
 /* USER CODE BEGIN Includes */     
 #include "stm32f4xx_hal.h"
 #include "tim.h"
-#include "thb-bsp.h"
 #include "thb-task.h"
 /* USER CODE END Includes */
 
@@ -62,7 +61,7 @@
 osThreadId defaultTaskHandle;
 
 /* USER CODE BEGIN Variables */
-osThreadId uart5TaskHandle;
+
 
 /* USER CODE END Variables */
 
@@ -98,13 +97,12 @@ void MX_FREERTOS_Init(void) {
 
   /* Create the thread(s) */
   /* definition and creation of defaultTask */
-  osThreadDef(defaultTask, StartDefaultTask, osPriorityNormal, 0, 256);
+  osThreadDef(defaultTask, StartDefaultTask, osPriorityNormal, 0, 1024);
   defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
-  osThreadDef(uart5Task, thb_UART5Task, PRIORITY_UART, 0, 128);
-  uart5TaskHandle = osThreadCreate(osThread(uart5Task), NULL);
+
   /* USER CODE END RTOS_THREADS */
 
   /* USER CODE BEGIN RTOS_QUEUES */

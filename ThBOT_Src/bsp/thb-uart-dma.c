@@ -12,28 +12,45 @@
 
 #include "FreeRTOS.h"
 #include "semphr.h"
+#include "task.h"
+#include "cmsis_os.h"
 
+#include "thb-task.h"
 #include "thb-uart-dma.h"
 #include "thb-fsm.h"
 #include "thb-param.h"
+
+osThreadId uart5ThdId;
+TaskHandle_t uart5TaskHandle;
+osThreadId uart4ThdId;
+TaskHandle_t uart4TaskHandle;
 
 #define LONG_TIME 0xffff
 
 #define DMA_RX_BUFFER_SIZE          64
 uint8_t DMA_RX_Buffer[DMA_RX_BUFFER_SIZE];
+uint8_t DEBUG_UART_DMA_RX_Buffer[DMA_RX_BUFFER_SIZE];
 
 #define UART_BUFFER_SIZE            64
-#define UART_MAX_RX_BUFF            10
+#define UART_MAX_RX_BUFF            64
 
-uint32_t u32_ReadIndex = 0;
-uint32_t u32_WriteIndex = 0;
-uint8_t LCD_UART_Buffer[UART_MAX_RX_BUFF][UART_BUFFER_SIZE];
-uint8_t DEBUG_UART_Buffer[UART_MAX_RX_BUFF][UART_BUFFER_SIZE];
+volatile uint32_t u32_WriteIndex = 0;
+uint8_t LCD_UART_Buffer[UART_MAX_RX_BUFF];
 
-volatile size_t Read, Write = 0;
+volatile uint32_t u32_DebugWriteIndex = 0;
+uint8_t DEBUG_UART_Buffer[UART_BUFFER_SIZE];
+
+volatile uint32_t u32_DebugRxIndex = 0;
+//volatile size_t DebugRead, DebugWrite = 0;
+
+//volatile size_t Read, Write = 0;
 
 SemaphoreHandle_t xSemCmdReady = NULL;
 SemaphoreHandle_t xSemLineReady = NULL;
+
+/* Stores the handle of the task that will be notified when the
+transmission is complete. */
+//static TaskHandle_t xTaskToNotify = NULL;
 
 void thb_UART5Task(void const *argument){
     printf("Start UART5 task...\n");
@@ -41,37 +58,51 @@ void thb_UART5Task(void const *argument){
     uint32_t uint32_StateId;
     uint32_t uint32_ParamId;
     uint32_t uint32_ParamLen;
+    static uint32_t thread_notification;
+    uint32_t u32_ReadIndex = 0;
 
+    uart5TaskHandle = xTaskGetHandle("uart5Task");
     for(;;){
+#if 0
         if( xSemaphoreTake( xSemCmdReady, portMAX_DELAY ) == pdTRUE )
+#else
+        /* Sleep until we are notified of a state change by an
+         * interrupt handler. Note the first parameter is pdTRUE,
+         * which has the effect of clearing the task's notification
+         * value back to 0, making the notification value act like
+         * a binary (rather than a counting) semaphore.  */
+
+        thread_notification = ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
+        if(thread_notification)
+#endif
         {
         	while (u32_ReadIndex != u32_WriteIndex)
         	{
-        		if (   (LCD_UART_Buffer[u32_ReadIndex][0] == 'C')
-        		    && (LCD_UART_Buffer[u32_ReadIndex][1] == 'M')
-				    && (LCD_UART_Buffer[u32_ReadIndex][2] == 'D')
+        		if (   (LCD_UART_Buffer[u32_ReadIndex] == 'C')
+        		    && (LCD_UART_Buffer[u32_ReadIndex+1] == 'M')
+				    && (LCD_UART_Buffer[u32_ReadIndex+2] == 'D')
 				   )
         		{
-        			uint32_ModeId = (LCD_UART_Buffer[u32_ReadIndex][4] -48) * 10 + (LCD_UART_Buffer[u32_ReadIndex][5] - 48);
-        			uint32_StateId  = (LCD_UART_Buffer[u32_ReadIndex][7] -48) * 10 + (LCD_UART_Buffer[u32_ReadIndex][8] - 48);
+        			uint32_ModeId = ((char)LCD_UART_Buffer[u32_ReadIndex+4] -48) * 10 + ((char)LCD_UART_Buffer[u32_ReadIndex+5] - 48);
+        			uint32_StateId  = ((char)LCD_UART_Buffer[u32_ReadIndex+7] -48) * 10 + ((char)LCD_UART_Buffer[u32_ReadIndex+8] - 48);
 
         			thb_fsm_ChangeModeState(uint32_ModeId, uint32_StateId);
         		}
-        		else if (   (LCD_UART_Buffer[u32_ReadIndex][0] == 'P')
-        				 && (LCD_UART_Buffer[u32_ReadIndex][1] == 'A')
-						 && (LCD_UART_Buffer[u32_ReadIndex][2] == 'R')
+        		else if (   (LCD_UART_Buffer[u32_ReadIndex] == 'P')
+        				 && (LCD_UART_Buffer[u32_ReadIndex+1] == 'A')
+						 && (LCD_UART_Buffer[u32_ReadIndex+2] == 'R')
 				   )
         		{
-        			uint32_ParamLen = (LCD_UART_Buffer[u32_ReadIndex][4] -48) * 10 + (LCD_UART_Buffer[u32_ReadIndex][5] - 48);
-        			uint32_ParamId  = (LCD_UART_Buffer[u32_ReadIndex][7] -48) * 10 + (LCD_UART_Buffer[u32_ReadIndex][8] - 48);
+        			uint32_ParamLen = ((char)LCD_UART_Buffer[u32_ReadIndex+4] -48) * 10 + ((char)LCD_UART_Buffer[u32_ReadIndex+5] - 48);
+        			uint32_ParamId  = ((char)LCD_UART_Buffer[u32_ReadIndex+7] -48) * 10 + ((char)LCD_UART_Buffer[u32_ReadIndex+8] - 48);
 
-        			LCD_UART_Buffer[u32_ReadIndex][10+(uint32_ParamLen)] = '\0';
+        			LCD_UART_Buffer[u32_ReadIndex+10+uint32_ParamLen] = 0;
 
-        			thb_param_SetParameter(uint32_ParamId, &LCD_UART_Buffer[u32_ReadIndex][10], uint32_ParamLen);
+        			thb_param_SetParameter(uint32_ParamId, (char*)&LCD_UART_Buffer[u32_ReadIndex+10], uint32_ParamLen);
         		}
         		else
         		{
-        			printf("Hum : %s\n", &LCD_UART_Buffer[u32_ReadIndex][0]);
+        			printf("Hum : %s\n", &LCD_UART_Buffer[u32_ReadIndex]);
         		}
         		u32_ReadIndex++;
         		if (u32_ReadIndex >= UART_MAX_RX_BUFF)
@@ -114,8 +145,11 @@ void thb_UART5_Init(void)
     LL_USART_InitTypeDef USART_InitStruct;
     LL_DMA_InitTypeDef DMA_InitStruct;
 
-    for (uint32_t Index=0; Index < UART_MAX_RX_BUFF;Index++)
-    	memset(LCD_UART_Buffer[Index], 0, UART_BUFFER_SIZE);
+    osThreadDef(uart5Task, thb_UART5Task, PRIORITY_UART, 0, 128);
+    uart5ThdId = osThreadCreate(osThread(uart5Task), NULL);
+
+    //for (uint32_t Index=0; Index < UART_MAX_RX_BUFF;Index++)
+    	memset(LCD_UART_Buffer, 0, UART_BUFFER_SIZE);
 
     vSemaphoreCreateBinary(xSemCmdReady);
     xSemaphoreTake(xSemCmdReady, 0);
@@ -181,7 +215,7 @@ void thb_DMA1_Stream0_IRQHandler(void)
         LL_DMA_ClearFlag_TC0(DMA1);
 
         len = DMA_RX_BUFFER_SIZE - DMA1_Stream0->NDTR;
-        tocopy = UART_BUFFER_SIZE - Write;      /* Get number of bytes we can copy to the end of buffer */
+        tocopy = UART_BUFFER_SIZE - u32_WriteIndex;      /* Get number of bytes we can copy to the end of buffer */
 
         /* Check how many bytes to copy */
         if (tocopy > len) {
@@ -190,25 +224,20 @@ void thb_DMA1_Stream0_IRQHandler(void)
 
         /* Write received data for UART main buffer for manipulation later */
         ptr = DMA_RX_Buffer;
-        //printf("DMA get : {%s} (%d - %d)\n", DMA_RX_Buffer, u32_WriteIndex, u32_ReadIndex);
-        //memcpy(&UART_Buffer[u32_WriteIndex][Write], ptr, tocopy);   /* Copy first part */
-        memset(&LCD_UART_Buffer[u32_WriteIndex][0], 0, UART_BUFFER_SIZE);
-        memcpy(&LCD_UART_Buffer[u32_WriteIndex][0], ptr, tocopy);
+
+        memset(&LCD_UART_Buffer[u32_WriteIndex], 0, UART_BUFFER_SIZE);
+        memcpy(&LCD_UART_Buffer[u32_WriteIndex], ptr, tocopy);
 
         /* Correct values for remaining data */
-        //Write += tocopy;
-        //len -= tocopy;
-        //ptr += tocopy;
+        u32_WriteIndex += tocopy;
+        len -= tocopy;
+        ptr += tocopy;
 
         /* If still data to write for beginning of buffer */
-        //if (len) {
-        //    memcpy(&UART_Buffer[u32_WriteIndex][0], ptr, len);      /* Don't care if we override Read pointer now */
-        //    Write = len;
-        //}
-
-        u32_WriteIndex++;
-        if (u32_WriteIndex >= UART_MAX_RX_BUFF)
-        	u32_WriteIndex = 0;
+        if (len) {
+            memcpy(&LCD_UART_Buffer[u32_WriteIndex], ptr, len);      /* Don't care if we override Read pointer now */
+            u32_WriteIndex = len;
+        }
 
         /* Prepare DMA for next transfer */
         /* Important! DMA stream won't start if all flags are not cleared first */
@@ -216,7 +245,7 @@ void thb_DMA1_Stream0_IRQHandler(void)
         DMA1_Stream0->M0AR = (uint32_t)DMA_RX_Buffer;   /* Set memory address for DMA again */
         DMA1_Stream0->NDTR = DMA_RX_BUFFER_SIZE;    /* Set number of bytes to receive */
         DMA1_Stream0->CR |= DMA_SxCR_EN;            /* Start DMA transfer */
-
+#if 0
         //printf("Release semaphore\n");
         // Unblock the task by releasing the semaphore.
         xSemaphoreGiveFromISR( xSemCmdReady, &xHigherPriorityTaskWoken );
@@ -226,17 +255,51 @@ void thb_DMA1_Stream0_IRQHandler(void)
             /* Now inform the OS to check if a task-switch is necessary. */
             portEND_SWITCHING_ISR( xHigherPriorityTaskWoken );
         }
+#else
+        /* Unblock the handling task so the task can perform any processing
+        necessitated by the interrupt.  xHandlingTask is the task's handle, which was
+        obtained when the task was created.  vTaskNotifyGiveFromISR() also increments
+        the receiving task's notification value. */
+        vTaskNotifyGiveFromISR( uart5TaskHandle, &xHigherPriorityTaskWoken );
+
+        /* Force a context switch if xHigherPriorityTaskWoken is now set to pdTRUE.
+        The macro used to do this is dependent on the port and may be called
+        portEND_SWITCHING_ISR. */
+        portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
+#endif
     }
     portCLEAR_INTERRUPT_MASK_FROM_ISR(0);
 }
 
 void thb_UART4Task(void const *argument){
+	static uint32_t thread_notification;
+	uint32_t u32_ReadIndex = 0;
+
     printf("Start UART4 task...\n");
 
+    uart4TaskHandle = xTaskGetHandle("uart4Task");
     for(;;){
+#if 0
         if( xSemaphoreTake( xSemLineReady, portMAX_DELAY ) == pdTRUE )
-        {
+#else
+        /* Sleep until we are notified of a state change by an
+         * interrupt handler. Note the first parameter is pdTRUE,
+         * which has the effect of clearing the task's notification
+         * value back to 0, making the notification value act like
+         * a binary (rather than a counting) semaphore.  */
 
+        thread_notification = ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
+        if(thread_notification)
+#endif
+        {
+        	while (u32_ReadIndex != u32_DebugWriteIndex) {
+       			// Echo the character...
+        		printf("%c", DEBUG_UART_Buffer[u32_ReadIndex]);
+
+        		u32_ReadIndex++;
+        		if (u32_ReadIndex >= UART_BUFFER_SIZE)
+        			u32_ReadIndex = 0;
+        	}
         }
     }
 }
@@ -258,13 +321,29 @@ void thb_UART4_SendData(char * pu8_Buff, uint32_t DataLen)
 	}
 }
 
+uint32_t thb_UART4_ReceivedData(char * pu8_Buff, uint32_t DataLen) {
+
+	if (u32_DebugRxIndex != u32_DebugWriteIndex) {
+		pu8_Buff[0] = DEBUG_UART_Buffer[u32_DebugRxIndex];
+		//printf("[%i] <%c> \n", u32_DebugRxIndex, pu8_Buff[0]);
+		u32_DebugRxIndex++;
+		if (u32_DebugRxIndex >= UART_BUFFER_SIZE)
+			u32_DebugRxIndex = 0;
+		return 1;
+	}
+	pu8_Buff[0] = '\0';
+	return 0;
+}
+
 void thb_UART4_Init(void)
 {
+	osThreadDef(uart4Task, thb_UART4Task, PRIORITY_UART, 0, 128);
+	uart4ThdId = osThreadCreate(osThread(uart4Task), NULL);
+
     LL_USART_InitTypeDef USART_InitStruct;
     LL_DMA_InitTypeDef DMA_InitStruct;
 
-    for (uint32_t Index=0; Index < UART_MAX_RX_BUFF;Index++)
-    	memset(DEBUG_UART_Buffer[Index], 0, UART_BUFFER_SIZE);
+   	memset(DEBUG_UART_Buffer, 0, UART_BUFFER_SIZE);
 
     vSemaphoreCreateBinary(xSemLineReady);
     xSemaphoreTake(xSemLineReady, 0);
@@ -293,7 +372,7 @@ void thb_UART4_Init(void)
     LL_DMA_StructInit(&DMA_InitStruct);
     DMA_InitStruct.Channel = LL_DMA_CHANNEL_4;
     DMA_InitStruct.Direction = LL_DMA_DIRECTION_PERIPH_TO_MEMORY;
-    DMA_InitStruct.MemoryOrM2MDstAddress = (uint32_t)DMA_RX_Buffer;
+    DMA_InitStruct.MemoryOrM2MDstAddress = (uint32_t)DEBUG_UART_DMA_RX_Buffer;
     DMA_InitStruct.NbData = DMA_RX_BUFFER_SIZE;
     DMA_InitStruct.MemoryOrM2MDstIncMode = LL_DMA_MEMORY_INCREMENT;
     DMA_InitStruct.PeriphOrM2MSrcAddress = (uint32_t)&UART4->DR;
@@ -312,7 +391,7 @@ void thb_UART4_IRQHandler(void)
 {
     if (LL_USART_IsActiveFlag_IDLE(UART4)) {
         LL_USART_ClearFlag_IDLE(UART4);
-        //LL_DMA_DisableStream(DMA1, LL_DMA_STREAM_0);
+        LL_DMA_DisableStream(DMA1, LL_DMA_STREAM_2);
     }
 }
 
@@ -324,11 +403,11 @@ void thb_DMA1_Stream2_IRQHandler(void)
 
     portSET_INTERRUPT_MASK_FROM_ISR();
 
-    if (LL_DMA_IsActiveFlag_TC0(DMA1)) {
-        LL_DMA_ClearFlag_TC0(DMA1);
+    if (LL_DMA_IsActiveFlag_TC2(DMA1)) {
+        LL_DMA_ClearFlag_TC2(DMA1);
 
         len = DMA_RX_BUFFER_SIZE - DMA1_Stream2->NDTR;
-        tocopy = UART_BUFFER_SIZE - Write;      /* Get number of bytes we can copy to the end of buffer */
+        tocopy = UART_BUFFER_SIZE - u32_DebugWriteIndex;      /* Get number of bytes we can copy to the end of buffer */
 
         /* Check how many bytes to copy */
         if (tocopy > len) {
@@ -336,34 +415,41 @@ void thb_DMA1_Stream2_IRQHandler(void)
         }
 
         /* Write received data for UART main buffer for manipulation later */
-        ptr = DMA_RX_Buffer;
-        //printf("DMA get : {%s} (%d - %d)\n", DMA_RX_Buffer, u32_WriteIndex, u32_ReadIndex);
-        //memcpy(&UART_Buffer[u32_WriteIndex][Write], ptr, tocopy);   /* Copy first part */
-        memset(&DEBUG_UART_Buffer[u32_WriteIndex][0], 0, UART_BUFFER_SIZE);
-        memcpy(&DEBUG_UART_Buffer[u32_WriteIndex][0], ptr, tocopy);
+        ptr = DEBUG_UART_DMA_RX_Buffer;
+
+        //memset(&DEBUG_UART_Buffer[u32_DebugWriteIndex], 0, UART_BUFFER_SIZE-u32_DebugWriteIndex);
+        memcpy(&DEBUG_UART_Buffer[u32_DebugWriteIndex], ptr, tocopy);
 
         /* Correct values for remaining data */
-        //Write += tocopy;
-        //len -= tocopy;
-        //ptr += tocopy;
+        u32_DebugWriteIndex += tocopy;
+        len -= tocopy;
+        ptr += tocopy;
 
         /* If still data to write for beginning of buffer */
-        //if (len) {
-        //    memcpy(&UART_Buffer[u32_WriteIndex][0], ptr, len);      /* Don't care if we override Read pointer now */
-        //    Write = len;
-        //}
-
-        u32_WriteIndex++;
-        if (u32_WriteIndex >= UART_MAX_RX_BUFF)
-        	u32_WriteIndex = 0;
-
+        if (len) {
+            memcpy(&DEBUG_UART_Buffer[u32_DebugWriteIndex], ptr, len);      /* Don't care if we override Read pointer now */
+            u32_DebugWriteIndex = len;
+        }
+/*
+        while (tocopy) {
+			u32_DebugWriteIndex++;
+			if (u32_DebugWriteIndex >= UART_BUFFER_SIZE)
+				u32_DebugWriteIndex = 0;
+			tocopy--;
+        }
+        while (len) {
+			u32_DebugWriteIndex++;
+			if (u32_DebugWriteIndex >= UART_BUFFER_SIZE)
+				u32_DebugWriteIndex = 0;
+			len--;
+        }*/
         /* Prepare DMA for next transfer */
         /* Important! DMA stream won't start if all flags are not cleared first */
         DMA1->HIFCR = DMA_FLAG_DMEIF0_4 | DMA_FLAG_FEIF0_4 | DMA_FLAG_HTIF0_4 | DMA_FLAG_TCIF0_4 | DMA_FLAG_TEIF0_4;
-        DMA1_Stream2->M0AR = (uint32_t)DMA_RX_Buffer;   /* Set memory address for DMA again */
+        DMA1_Stream2->M0AR = (uint32_t)DEBUG_UART_DMA_RX_Buffer;   /* Set memory address for DMA again */
         DMA1_Stream2->NDTR = DMA_RX_BUFFER_SIZE;    /* Set number of bytes to receive */
         DMA1_Stream2->CR |= DMA_SxCR_EN;            /* Start DMA transfer */
-
+#if 0
         //printf("Release semaphore\n");
         // Unblock the task by releasing the semaphore.
         xSemaphoreGiveFromISR( xSemLineReady, &xHigherPriorityTaskWoken );
@@ -373,6 +459,18 @@ void thb_DMA1_Stream2_IRQHandler(void)
             /* Now inform the OS to check if a task-switch is necessary. */
             portEND_SWITCHING_ISR( xHigherPriorityTaskWoken );
         }
+#else
+        /* Unblock the handling task so the task can perform any processing
+        necessitated by the interrupt.  xHandlingTask is the task's handle, which was
+        obtained when the task was created.  vTaskNotifyGiveFromISR() also increments
+        the receiving task's notification value. */
+        vTaskNotifyGiveFromISR( uart4TaskHandle, &xHigherPriorityTaskWoken );
+
+        /* Force a context switch if xHigherPriorityTaskWoken is now set to pdTRUE.
+        The macro used to do this is dependent on the port and may be called
+        portEND_SWITCHING_ISR. */
+        portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
+#endif
     }
     portCLEAR_INTERRUPT_MASK_FROM_ISR(0);
 }

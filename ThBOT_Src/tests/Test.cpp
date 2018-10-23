@@ -28,6 +28,7 @@ static char Float3[12];
 static char Float4[12];
 static char Float5[12];
 
+#if 0
 static void test_printInt(int i, char * Res)
 {
 	char tmpSign[2];
@@ -41,6 +42,7 @@ static void test_printInt(int i, char * Res)
 
 	sprintf (Res, "%s%10.10i", tmpSign, tmpVal);
 }
+#endif
 
 static void test_printFloat(float f, char * Res, int pres)
 {
@@ -184,7 +186,7 @@ Test::Test(RobotCore * Rob) {
 Test::~Test() {
 }
 
-void Test::TurnLeft(uint32_t PercentPower, double TargetAngle)
+void Test::TurnLeft(float PercentPower, double TargetAngle)
 {
 	Odom_t OdomVal = Robocore->GetOdomValue();
 	double StartAngle = OdomVal.angle;

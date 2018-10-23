@@ -19,6 +19,6 @@
 
 #define	PRIORITY_IDLE		osPriorityIdle
 #define	PRIORITY_UART		osPriorityNormal
-#define	PRIORITY_MOTIONCTRL	osPriorityAboveNormal
-#define	PRIORITY_ODOMETRY	osPriorityHigh
+#define	PRIORITY_MOTIONCTRL	osPriorityHigh
+#define	PRIORITY_ODOMETRY	osPriorityAboveNormal
 

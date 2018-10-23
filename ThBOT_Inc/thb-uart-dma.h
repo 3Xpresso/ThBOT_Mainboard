@@ -8,3 +8,5 @@ extern void thb_DMA1_Stream2_IRQHandler(void);
 
 extern void thb_UART5_SendData(char * pu8_Buff, uint32_t DataLen);
 extern void thb_UART4_SendData(char * pu8_Buff, uint32_t DataLen);
+
+extern uint32_t thb_UART4_ReceivedData(char * pu8_Buff, uint32_t DataLen);

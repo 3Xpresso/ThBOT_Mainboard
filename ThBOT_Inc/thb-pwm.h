@@ -1,4 +1,4 @@
 
 
-extern void thb_SetPwmRight(uint32_t Val);
-extern void thb_SetPwmLeft(uint32_t Val);
+extern void thb_SetPwmRight(float Val);
+extern void thb_SetPwmLeft(float Val);

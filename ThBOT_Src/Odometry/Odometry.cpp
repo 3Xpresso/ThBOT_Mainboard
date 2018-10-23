@@ -62,12 +62,9 @@ void Odometry::task(void)
 	xLastWakeTime = xTaskGetTickCount();
 	while(1)
 	{
-		osDelay(10);
-		double delta_l = odomEncoderLeft->GetDeltaMM();
-		double delta_r = odomEncoderRight->GetDeltaMM();
-		Update_value(delta_l, delta_r);
+		osDelay(3000);
 
-		vTaskDelayUntil( &xLastWakeTime, pdMS_TO_TICKS( 10 ));
+		vTaskDelayUntil( &xLastWakeTime, pdMS_TO_TICKS( 3000 ));
 	}
 
 }
@@ -80,13 +77,19 @@ void Odometry::Update_value(double delta_left_mm, double delta_right_mm)
 	previous_tick_count = current_tick_count;
 
 	uint32_t delay_ms = delta_tick/portTICK_PERIOD_MS;
-	if (!delay_ms)
-	  return;
 
 	double deplacement_mm = (delta_left_mm + delta_right_mm)/2;
 
-	Speed = deplacement_mm / delay_ms;
-
+	if (!delay_ms) {
+		Speed      = 0;
+		SpeedLeft  = 0;
+		SpeedRight = 0;
+	}
+	else {
+		Speed      = deplacement_mm / delay_ms * 1000;
+		SpeedLeft  = delta_left_mm  / delay_ms * 1000;
+		SpeedRight = delta_right_mm / delay_ms * 1000;
+	}
 	double delta_x = deplacement_mm*cos(Angle);
 	double delta_y = deplacement_mm*sin(Angle);
 	double delta_angle = (delta_right_mm - delta_left_mm) / ENCODER_DISTANCE;
@@ -94,4 +97,27 @@ void Odometry::Update_value(double delta_left_mm, double delta_right_mm)
 	Angle = Angle + delta_angle;
 	Pos_x = Pos_x + delta_x;
 	Pos_y = Pos_y + delta_y;
+}
+
+Wheel_t Odometry::UpdateValue(void){
+	double delta_l = odomEncoderLeft->GetDeltaMM();
+	double delta_r = odomEncoderRight->GetDeltaMM();
+	Update_value(delta_l, delta_r);
+
+	Wheel_t res = {
+	      this->SpeedLeft,
+	      this->SpeedRight,
+	};
+	return res;
+}
+
+Odom_t Odometry::GetOdomValue() {
+  Odom_t res = {
+      this->Pos_x,
+      this->Pos_y,
+      this->Angle,
+      this->Speed,
+      this->Accel
+  };
+  return res;
 }

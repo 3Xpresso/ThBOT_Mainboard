@@ -11,8 +11,17 @@
 #include "Odometry/Odometry.h"
 #include "MotionControl/MotionControl.h"
 #include "tests/Test.h"
+#include "calibration/Calibration.h"
 
 #include "thb-bsp.h"
+
+#define CMD_MAX_LEN  64
+
+enum
+{
+	ERROR_NONE,
+	ERROR_MOTION,
+};
 
 class RobotCore {
 public:
@@ -21,6 +30,8 @@ public:
 
 	void Init(void);
 	void Task(void);
+
+	void SetError(uint32_t Error);
 
 	uint32_t GetPercentPower(){
 		return thb_param_GetPercentPower();
@@ -31,37 +42,48 @@ public:
 	}
 
 	Odom_t GetOdomValue(){
-		return odom->GetOdomValue();
+		return motionCtrl->GetOdomValue();
 	}
 
 	int32_t EncoderLeftGetAbsoluteStep(){
-		return odom->EncoderLeftGetAbsoluteStep();
+		return motionCtrl->EncoderLeftGetAbsoluteStep();
 	}
 
 	int32_t EncoderRightGetAbsoluteStep(){
-		return odom->EncoderRightGetAbsoluteStep();
+		return motionCtrl->EncoderRightGetAbsoluteStep();
 	}
 
 	double  EncoderLeftGetAbsoluteMM(){
-		return odom->EncoderLeftGetAbsoluteMM();
+		return motionCtrl->EncoderLeftGetAbsoluteMM();
 	}
 
 	double  EncoderRightGetAbsoluteMM(){
-		return odom->EncoderRightGetAbsoluteMM();
+		return motionCtrl->EncoderRightGetAbsoluteMM();
 	}
 
 	int32_t EncoderLeftAbsoluteStepFromDelta(){
-		return odom->EncoderLeftGetAbsoluteStepFromDelta();
+		return motionCtrl->EncoderLeftGetAbsoluteStepFromDelta();
 	}
 
 	int32_t EncoderRightGetAbsoluteStepFromDelta(){
-		return odom->EncoderRightGetAbsoluteStepFromDelta();
+		return motionCtrl->EncoderRightGetAbsoluteStepFromDelta();
+	}
+
+	void IncrStatIndex(){
+		statsIndex++;
 	}
 
 protected:
-	Odometry *      odom;
 	MotionControl * motionCtrl;
 	Test *          test;
+	Calibration *	calibr;
+	uint32_t        statsIndex;
+	uint32_t        Error;
+
+	uint32_t		CmdIndex;
+	char CmdArray[CMD_MAX_LEN];
+
+	void ManageCmd(void);
 };
 
 

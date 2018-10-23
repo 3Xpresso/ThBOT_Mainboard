@@ -17,14 +17,31 @@
 
 DcMotor::DcMotor(uint32_t id) {
 	this->id = id;
+	this->Percentage = 0;
 }
 
 DcMotor::~DcMotor() {
-	// TODO Auto-generated destructor stub
 }
 
-void DcMotor::SetPercentPower(uint32_t Percentage)
+void DcMotor::SetSpeed(double expectedSpeed){
+
+	switch (this->id)
+	{
+	case BSP_DCMOTOR_1 :
+	{
+		thb_StatsSetTargetSpeedLeft(expectedSpeed);
+	}break;
+	case BSP_DCMOTOR_2 :
+	{
+		thb_StatsSetTargetSpeedRight(expectedSpeed);
+	}break;
+	}
+}
+
+void DcMotor::SetPercentPower(float Percentage)
 {
+	this->Percentage = Percentage;
+
 	switch (this->id)
 	{
 	case BSP_DCMOTOR_1 :
@@ -35,6 +52,23 @@ void DcMotor::SetPercentPower(uint32_t Percentage)
 	{
 		thb_SetPwmRight(Percentage);
 	}break;
+	}
+}
+
+void DcMotor::UpdatePercentPower(float DeltaPercentage)
+{
+	if ((DeltaPercentage > -100.0) && (DeltaPercentage < 100.0)){
+		switch (this->id)
+		{
+		case BSP_DCMOTOR_1 :
+		{
+			thb_SetPwmLeft(Percentage + DeltaPercentage);
+		}break;
+		case BSP_DCMOTOR_2 :
+		{
+			thb_SetPwmRight(Percentage + DeltaPercentage);
+		}break;
+		}
 	}
 }
 

@@ -94,13 +94,16 @@ void thb_fsm_ChangeModeState(uint32_t Mode, uint32_t State)
 
 RobotCore::RobotCore() {
 
-	odom       = new Odometry(this);
+	//odom       = new Odometry(this);
 	motionCtrl = new MotionControl(this);
 	test       = new Test(this);
+	calibr     = new Calibration(this);
+	statsIndex = 0;
+	Error      = ERROR_NONE;
+	CmdIndex   = 0;
 }
 
 RobotCore::~RobotCore() {
-	// TODO Auto-generated destructor stub
 }
 
 void RobotCore::Init(void)
@@ -134,12 +137,84 @@ void RobotCore::Task(void)
     		}break;
     		case MODE_CALIBR :
     		{
-
+    			calibr->Run(State);
     		}break;
     		case MODE_TESTS :
     		{
     			test->Run(State);
     		}break;
     	}
+
+    	ManageCmd();
     }
+}
+
+void RobotCore::SetError(uint32_t Error){
+	thb_fsm_ChangeModeState(MODE_IDLE, STATE_IDLE);
+
+	SetMotionMotor(MOTION_MOTOR_LEFT, BACKWARD, 0);
+	SetMotionMotor(MOTION_MOTOR_RIGHT, FORWARD, 0);
+	printf("\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
+	printf("Error detected : %lu", Error);
+	printf("\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
+}
+
+void RobotCore::ManageCmd(void){
+
+	CmdArray[CmdIndex] = getchar();
+	if (CmdArray[CmdIndex] != '\0'){
+		if (CmdArray[CmdIndex] == '\r') {
+			CmdArray[CmdIndex] = '\0';
+			printf("CMD[%i] : %s\n", CmdIndex, CmdArray);
+
+			// PARAM:PID:SET:KP:4.0
+			// PARAM:PID:SET:KI:4.0
+			if (strncmp("PARAM:",CmdArray, strlen("PARAM:")) == 0 ) {
+				if (strncmp("PID:",&CmdArray[6], strlen("PID:")) == 0 ) {
+					if (strncmp("SET:",&CmdArray[6+4], strlen("SET:")) == 0 ) {
+						if (strncmp("KP:",&CmdArray[6+4+4], strlen("KP:")) == 0 ) {
+							float Value;
+
+							Value = strtod(&CmdArray[6+4+4+3], NULL);
+							thb_param_SetPidSpeedKp(Value);
+						} else if (strncmp("KI:",&CmdArray[6+4+4], strlen("KI:")) == 0 ) {
+							float Value;
+
+							Value = strtod(&CmdArray[6+4+4+3], NULL);
+							thb_param_SetPidSpeedKi(Value);
+						} else if (strncmp("KD:",&CmdArray[6+4+4], strlen("KD:")) == 0 ) {
+							float Value;
+
+							Value = strtod(&CmdArray[6+4+4+3], NULL);
+							thb_param_SetPidSpeedKd(Value);
+						}
+					}
+					motionCtrl->PidReload();
+				}
+			} else if (strncmp("MOTION:",CmdArray, strlen("MOTION:")) == 0 ) {
+				// MOTION:STAT:CLEAR
+				// MOTION:STAT:PRINT
+				if (strncmp("STAT:",&CmdArray[7], strlen("STAT:")) == 0 ) {
+					if (strncmp("CLEAR",&CmdArray[7+5], strlen("CLEAR")) == 0 ) {
+						printf("OK : %s\n", &CmdArray[7+5]);
+						motionCtrl->ClearStats();
+
+					} else if (strncmp("PRINT",&CmdArray[7+5], strlen("PRINT")) == 0 ) {
+						printf("OK : %s\n", &CmdArray[7+5]);
+						motionCtrl->PrintStats();
+					}
+				}
+			}
+
+			memset(CmdArray, 0, CMD_MAX_LEN);
+			CmdIndex = 0;
+		} else {
+			CmdIndex++;
+			if (CmdIndex>= CMD_MAX_LEN)
+				CmdIndex = 0;
+		}
+	}
+
+	if (CmdIndex > 0)
+		CounterLoop = 0;
 }
